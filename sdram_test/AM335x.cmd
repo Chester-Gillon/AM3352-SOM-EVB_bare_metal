@@ -12,6 +12,7 @@
 /*                 scheme according to the size of your program.            */
 /*                                                                          */
 /****************************************************************************/
+-e Entry
 
 #ifdef A8_CORE     /* A8 memory map */
 MEMORY
@@ -28,6 +29,8 @@ SECTIONS
     .text          >  L3OCMC0
     .stack         >  L3OCMC0
     .bss           >  L3OCMC0
+                    RUN_START(bss_start)
+                    RUN_END(bss_end)
     .cio           >  L3OCMC0
     .const         >  L3OCMC0
     .data          >  L3OCMC0
