@@ -15,6 +15,7 @@
 #include <uartStdio.h>
 #include <consoleUtils.h>
 #include <rtc.h>
+#include <cache.h>
 
 #define SDRAM_SIZE_BYTES (512 * 1024 * 1024)
 #define SDRAM_SIZE_WORDS (SDRAM_SIZE_BYTES / sizeof (uint32_t))
@@ -136,6 +137,7 @@ int main (void)
     uint32_t index;
     uint32_t num_errors;
 
+    CacheEnable (CACHE_ALL);
     UART_setup ();
     RTC_setup ();
 
