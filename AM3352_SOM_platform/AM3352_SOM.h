@@ -19,6 +19,7 @@ extern "C" {
 
 void UART0ModuleClkConfig(void);
 void UARTPinMuxSetup(unsigned int instanceNum);
+void RTCModuleClkConfig(void);
 
 #ifdef __cplusplus
 }
