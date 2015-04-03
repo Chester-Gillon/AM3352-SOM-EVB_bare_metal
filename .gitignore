@@ -35,5 +35,6 @@
 .metadata
 .settings
 RemoteSystemsTempFiles
+dvt
 Debug
 Release
