@@ -18,18 +18,20 @@
 #include <cache.h>
 #include <mmu.h>
 
+/* The total SDRAM size which is tested */
 #define SDRAM_SIZE_BYTES (512 * 1024 * 1024)
 #define SDRAM_SIZE_WORDS (SDRAM_SIZE_BYTES / sizeof (uint32_t))
 
+/* Copies of macros from driver/rtc.c which are not part of the API */
 #define MASK_HOUR            (0xFF000000u)
 #define MASK_MINUTE          (0x00FF0000u)
 #define MASK_SECOND          (0x0000FF00u)
-#define MASK_MERIDIEM        (0x000000FFu)
 
 #define HOUR_SHIFT           (24)
 #define MINUTE_SHIFT         (16)
 #define SECOND_SHIFT         (8)
 
+/* The MMU regions used */
 #define START_ADDR_DDR             (0x80000000)
 #define START_ADDR_DEV             (0x44000000)
 #define START_ADDR_OCMC            (0x40300000)
@@ -126,8 +128,8 @@ static void RTC_setup (void)
     /* Disabling Write Protection for RTC registers.*/
     RTCWriteProtectDisable(SOC_RTC_0_REGS);
 
-    /* Selecting Internal Clock source for RTC. */
-    RTC32KClkSourceSelect(SOC_RTC_0_REGS, RTC_INTERNAL_CLK_SRC_SELECT);
+    /* Selecting External Clock source for RTC. */
+    RTC32KClkSourceSelect(SOC_RTC_0_REGS, RTC_EXTERNAL_CLK_SRC_SELECT);
 
     /* Enabling RTC to receive the Clock inputs. */
     RTC32KClkClockControl(SOC_RTC_0_REGS, RTC_32KCLK_ENABLE);
