@@ -22,7 +22,7 @@
 #define SDRAM_SIZE_BYTES (512 * 1024 * 1024)
 #define SDRAM_SIZE_WORDS (SDRAM_SIZE_BYTES / sizeof (uint32_t))
 
-/* Copies of macros from driver/rtc.c which are not part of the API */
+/* Copies of macros from drivers/rtc.c which are not part of the API */
 #define MASK_HOUR            (0xFF000000u)
 #define MASK_MINUTE          (0x00FF0000u)
 #define MASK_SECOND          (0x0000FF00u)
@@ -201,6 +201,32 @@ static void time_resolve (unsigned int timeValue)
     }
 }
 
+/**
+ * @brief Use a one second delay from the RTC to report the frequency of other clocks
+ */
+static void check_clock_frequencies (void)
+{
+    unsigned int initial_rtc_time;
+    unsigned int current_rtc_time;
+    unsigned int perf_timer_ticks_per_sec;
+
+    initial_rtc_time = RTCTimeGet (SOC_RTC_0_REGS);
+    do
+    {
+        current_rtc_time = RTCTimeGet (SOC_RTC_0_REGS);
+    } while (current_rtc_time == initial_rtc_time);
+    (void) SysPerfTimerConfig (1);
+
+    initial_rtc_time = current_rtc_time;
+    do
+    {
+        current_rtc_time = RTCTimeGet (SOC_RTC_0_REGS);
+    } while (current_rtc_time == initial_rtc_time);
+    perf_timer_ticks_per_sec = SysPerfTimerConfig (0);
+
+    UARTprintf ("Perf Timer Ticks Per Second = %u\n", perf_timer_ticks_per_sec);
+}
+
 int main (void)
 {
     uint32_t *const sdram_base = (uint32_t *) 0x80000000;
@@ -211,6 +237,8 @@ int main (void)
     CacheEnable (CACHE_ALL);
     UART_setup ();
     RTC_setup ();
+    SysPerfTimerSetup ();
+    check_clock_frequencies ();
 
     time_resolve (RTCTimeGet (SOC_RTC_0_REGS));
     UARTprintf ("Write test starting\n");

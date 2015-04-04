@@ -20,6 +20,14 @@ extern "C" {
 void UART0ModuleClkConfig(void);
 void UARTPinMuxSetup(unsigned int instanceNum);
 void RTCModuleClkConfig(void);
+void SysPerfTimerSetup(void);
+unsigned int SysPerfTimerConfig(unsigned int flag);
+void DMTimer2ModuleClkConfig(void);
+void DMTimer3ModuleClkConfig(void);
+void DMTimer4ModuleClkConfig(void);
+void DMTimer6ModuleClkConfig(void);
+void DMTimer7ModuleClkConfig(void);
+void DMTimer1msModuleClkConfig(unsigned int clkselect);
 
 #ifdef __cplusplus
 }
