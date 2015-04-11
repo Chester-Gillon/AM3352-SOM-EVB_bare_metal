@@ -28,6 +28,8 @@ void DMTimer4ModuleClkConfig(void);
 void DMTimer6ModuleClkConfig(void);
 void DMTimer7ModuleClkConfig(void);
 void DMTimer1msModuleClkConfig(unsigned int clkselect);
+unsigned int pmu_get_cycle_count (void);
+void enable_cycle_count (void);
 
 #ifdef __cplusplus
 }

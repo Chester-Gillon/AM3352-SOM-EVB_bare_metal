@@ -209,6 +209,7 @@ static void check_clock_frequencies (void)
     unsigned int initial_rtc_time;
     unsigned int current_rtc_time;
     unsigned int perf_timer_ticks_per_sec;
+    unsigned int start_cycle_count, stop_cycle_count;
 
     initial_rtc_time = RTCTimeGet (SOC_RTC_0_REGS);
     do
@@ -216,6 +217,7 @@ static void check_clock_frequencies (void)
         current_rtc_time = RTCTimeGet (SOC_RTC_0_REGS);
     } while (current_rtc_time == initial_rtc_time);
     (void) SysPerfTimerConfig (1);
+    start_cycle_count = pmu_get_cycle_count ();
 
     initial_rtc_time = current_rtc_time;
     do
@@ -223,8 +225,10 @@ static void check_clock_frequencies (void)
         current_rtc_time = RTCTimeGet (SOC_RTC_0_REGS);
     } while (current_rtc_time == initial_rtc_time);
     perf_timer_ticks_per_sec = SysPerfTimerConfig (0);
+    stop_cycle_count = pmu_get_cycle_count ();
 
     UARTprintf ("Perf Timer Ticks Per Second = %u\n", perf_timer_ticks_per_sec);
+    UARTprintf ("cycle counter Ticks Per Second = %u\n", stop_cycle_count - start_cycle_count);
 }
 
 int main (void)
@@ -238,6 +242,7 @@ int main (void)
     UART_setup ();
     RTC_setup ();
     SysPerfTimerSetup ();
+    enable_cycle_count ();
     check_clock_frequencies ();
 
     time_resolve (RTCTimeGet (SOC_RTC_0_REGS));
