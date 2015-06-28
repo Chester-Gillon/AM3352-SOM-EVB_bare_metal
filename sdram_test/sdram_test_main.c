@@ -236,6 +236,7 @@ int main (void)
     uint32_t *const sdram_base = (uint32_t *) 0x80000000;
     uint32_t index;
     uint32_t num_errors;
+    uint32_t offset;
 
     MMUConfigAndEnable ();
     CacheEnable (CACHE_ALL);
@@ -245,39 +246,44 @@ int main (void)
     enable_cycle_count ();
     check_clock_frequencies ();
 
-    time_resolve (RTCTimeGet (SOC_RTC_0_REGS));
-    UARTprintf ("Write test starting\n");
-    for (index = 0; index < SDRAM_SIZE_WORDS; index++)
-    {
-        sdram_base[index] = index;
-    }
-
     num_errors = 0;
-    for (index = 0; index < SDRAM_SIZE_WORDS; index++)
+    offset = 0;
+    for (;;)
     {
-        if (sdram_base[index] != index)
+        time_resolve (RTCTimeGet (SOC_RTC_0_REGS));
+        UARTprintf ("Write test starting\n");
+        for (index = 0; index < SDRAM_SIZE_WORDS; index++)
         {
-            num_errors++;
+            sdram_base[index] = index + offset;
         }
-    }
 
-    time_resolve (RTCTimeGet (SOC_RTC_0_REGS));
-    UARTprintf ("After index write num_errors=%u\n", num_errors);
-
-    for (index = 0; index < SDRAM_SIZE_WORDS; index++)
-    {
-        sdram_base[index] = ~index;
-    }
-    for (index = 0; index < SDRAM_SIZE_WORDS; index++)
-    {
-        if (sdram_base[index] != ~index)
+        for (index = 0; index < SDRAM_SIZE_WORDS; index++)
         {
-            num_errors++;
+            if (sdram_base[index] != (index + offset))
+            {
+                num_errors++;
+            }
         }
-    }
 
-    time_resolve (RTCTimeGet (SOC_RTC_0_REGS));
-    UARTprintf ("After ~index write num_errors=%u\n", num_errors);
+        time_resolve (RTCTimeGet (SOC_RTC_0_REGS));
+        UARTprintf ("After index write num_errors=%u\n", num_errors);
+
+        for (index = 0; index < SDRAM_SIZE_WORDS; index++)
+        {
+            sdram_base[index] = ~(index + offset);
+        }
+        for (index = 0; index < SDRAM_SIZE_WORDS; index++)
+        {
+            if (sdram_base[index] != ~(index + offset))
+            {
+                num_errors++;
+            }
+        }
+
+        time_resolve (RTCTimeGet (SOC_RTC_0_REGS));
+        UARTprintf ("After ~index write num_errors=%u\n", num_errors);
+        offset++;
+    }
 
     return 0;
 }
