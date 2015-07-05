@@ -14,6 +14,11 @@
 /****************************************************************************/
 -e Entry
 
+/* Suppress the following diagnostic due to a non-default entry point:
+   warning #10063-D: entry-point symbol other than "_c_int00" specified:  "Entry"
+*/
+--diag_suppress=10063
+
 #ifdef A8_CORE     /* A8 memory map */
 MEMORY
 {
@@ -26,31 +31,23 @@ MEMORY
 
 SECTIONS
 {
-    .text          >  L3OCMC0
-    .stack         >  L3OCMC0
-    .bss           >  L3OCMC0
-                    RUN_START(bss_start)
-                    RUN_END(bss_end)
-    .cio           >  L3OCMC0
-    .const         >  L3OCMC0
-    .data          >  L3OCMC0
-    .switch        >  L3OCMC0
-    .sysmem        >  L3OCMC0
-    .far           >  L3OCMC0
-    .args          >  L3OCMC0
-    .ppinfo        >  L3OCMC0
-    .ppdata        >  L3OCMC0
-  
-    /* TI-ABI or COFF sections */
-    .pinit         >  L3OCMC0
-    .cinit         >  L3OCMC0
-  
-    /* EABI sections */
-    .binit         >  L3OCMC0
-    .init_array    >  L3OCMC0
-    .neardata      >  L3OCMC0
-    .fardata       >  L3OCMC0
-    .rodata        >  L3OCMC0
+    /* Initialised sections */
+    GROUP
+    {
+        .text:Entry
+        .text
+        .const
+        .cinit
+    } > L3OCMC0
+
+    /* Uninitialised sections */
+    GROUP
+    {
+        .bss
+                RUN_START(bss_start)
+                RUN_END(bss_end)
+        .stack
+    } > L3OCMC0 HIGH
 }
 #endif             /* A8 memory map */
 

@@ -6,7 +6,7 @@
 	<deviceEndianness value="little"/>
 	<codegenToolVersion value="5.2.3"/>
 	<isElfFormat value="true"/>
-	<connection value="common/targetdb/connections/TIXDS100v2_Connection.xml"/>
+	<connection value="common/targetdb/connections/BH-USB560m_20pin_Connection.xml"/>
 	<linkerCommandFile value="AM335x.cmd"/>
 	<rts value="libc.a"/>
 	<createSlaveProjects value=""/>
