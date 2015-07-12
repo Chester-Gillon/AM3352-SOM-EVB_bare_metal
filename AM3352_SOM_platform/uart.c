@@ -83,6 +83,32 @@ void UARTPinMuxSetup(unsigned int instanceNum)
         HWREG(SOC_CONTROL_REGS + CONTROL_CONF_UART_TXD(1)) =
          CONTROL_CONF_UART1_TXD_CONF_UART1_TXD_PUTYPESEL;
         break;
+
+    case 2:
+        /* RXD ZCZ pin K18 */
+        HWREG(SOC_CONTROL_REGS + CONTROL_CONF_MII1_TXCLK) =
+        (CONTROL_CONF_MII1_TXCLK_CONF_MII1_TXCLK_PUTYPESEL |
+         CONTROL_CONF_MII1_TXCLK_CONF_MII1_TXCLK_RXACTIVE |
+         (1 << CONTROL_CONF_MII1_TXCLK_CONF_MII1_TXCLK_MMODE_SHIFT));
+
+        /* TXD ZCZ pin L18*/
+        HWREG(SOC_CONTROL_REGS + CONTROL_CONF_MII1_RXCLK) =
+        (CONTROL_CONF_MII1_RXCLK_CONF_MII1_RXCLK_PUTYPESEL |
+         (1 << CONTROL_CONF_MII1_RXCLK_CONF_MII1_RXCLK_MMODE_SHIFT));
+        break;
+
+    case 4:
+        /* RXD ZCZ pin T17 */
+        HWREG(SOC_CONTROL_REGS + CONTROL_CONF_GPMC_WAIT0) =
+        (CONTROL_CONF_GPMC_WAIT0_CONF_GPMC_WAIT0_PUTYPESEL |
+         CONTROL_CONF_GPMC_WAIT0_CONF_GPMC_WAIT0_RXACTIVE |
+         (6 << CONTROL_CONF_GPMC_WAIT0_CONF_GPMC_WAIT0_MMODE_SHIFT));
+
+        /* TXD ZCZ pin U17*/
+        HWREG(SOC_CONTROL_REGS + CONTROL_CONF_GPMC_WPN) =
+        (CONTROL_CONF_GPMC_WPN_CONF_GPMC_WPN_PUTYPESEL |
+         (6 << CONTROL_CONF_GPMC_WPN_CONF_GPMC_WPN_MMODE_SHIFT));
+        break;
     }
 }
 
@@ -306,6 +332,76 @@ void UART1ModuleClkConfig(void)
            CM_PER_UART1_CLKCTRL_IDLEST_SHIFT) !=
            (HWREG(SOC_CM_PER_REGS + CM_PER_UART1_CLKCTRL) &
             CM_PER_UART1_CLKCTRL_IDLEST));
+
+    /*
+    ** Waiting for CLKACTIVITY_UART_GFCLK bit in CM_PER_L4LS_CLKSTCTRL
+    ** register to attain desired value.
+    */
+    while(CM_PER_L4LS_CLKSTCTRL_CLKACTIVITY_UART_GFCLK !=
+          (HWREG(SOC_CM_PER_REGS + CM_PER_L4LS_CLKSTCTRL) &
+           CM_PER_L4LS_CLKSTCTRL_CLKACTIVITY_UART_GFCLK));
+}
+
+/*
+** This function enables the L3 and L4_PER interface clocks.
+** This also enables functional clocks of UART2 instance.
+*/
+
+void UART2ModuleClkConfig(void)
+{
+
+    /* Writing to MODULEMODE field of CM_PER_UART2_CLKCTRL register. */
+    HWREG(SOC_CM_PER_REGS + CM_PER_UART2_CLKCTRL) |=
+          CM_PER_UART2_CLKCTRL_MODULEMODE_ENABLE;
+
+    /* Waiting for MODULEMODE field to reflect the written value. */
+    while(CM_PER_UART2_CLKCTRL_MODULEMODE_ENABLE !=
+          (HWREG(SOC_CM_PER_REGS + CM_PER_UART2_CLKCTRL) &
+           CM_PER_UART2_CLKCTRL_MODULEMODE));
+
+    /*
+    ** Waiting for IDLEST field in CM_PER_UART2_CLKCTRL register to attain the
+    ** desired value.
+    */
+    while((CM_PER_UART2_CLKCTRL_IDLEST_FUNC <<
+           CM_PER_UART2_CLKCTRL_IDLEST_SHIFT) !=
+           (HWREG(SOC_CM_PER_REGS + CM_PER_UART2_CLKCTRL) &
+            CM_PER_UART2_CLKCTRL_IDLEST));
+
+    /*
+    ** Waiting for CLKACTIVITY_UART_GFCLK bit in CM_PER_L4LS_CLKSTCTRL
+    ** register to attain desired value.
+    */
+    while(CM_PER_L4LS_CLKSTCTRL_CLKACTIVITY_UART_GFCLK !=
+          (HWREG(SOC_CM_PER_REGS + CM_PER_L4LS_CLKSTCTRL) &
+           CM_PER_L4LS_CLKSTCTRL_CLKACTIVITY_UART_GFCLK));
+}
+
+/*
+** This function enables the L3 and L4_PER interface clocks.
+** This also enables functional clocks of UART4 instance.
+*/
+
+void UART4ModuleClkConfig(void)
+{
+
+    /* Writing to MODULEMODE field of CM_PER_UART4_CLKCTRL register. */
+    HWREG(SOC_CM_PER_REGS + CM_PER_UART4_CLKCTRL) |=
+          CM_PER_UART4_CLKCTRL_MODULEMODE_ENABLE;
+
+    /* Waiting for MODULEMODE field to reflect the written value. */
+    while(CM_PER_UART4_CLKCTRL_MODULEMODE_ENABLE !=
+          (HWREG(SOC_CM_PER_REGS + CM_PER_UART4_CLKCTRL) &
+           CM_PER_UART4_CLKCTRL_MODULEMODE));
+
+    /*
+    ** Waiting for IDLEST field in CM_PER_UART4_CLKCTRL register to attain the
+    ** desired value.
+    */
+    while((CM_PER_UART4_CLKCTRL_IDLEST_FUNC <<
+           CM_PER_UART4_CLKCTRL_IDLEST_SHIFT) !=
+           (HWREG(SOC_CM_PER_REGS + CM_PER_UART4_CLKCTRL) &
+            CM_PER_UART4_CLKCTRL_IDLEST));
 
     /*
     ** Waiting for CLKACTIVITY_UART_GFCLK bit in CM_PER_L4LS_CLKSTCTRL

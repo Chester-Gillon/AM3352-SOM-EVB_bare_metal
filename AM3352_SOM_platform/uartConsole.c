@@ -53,6 +53,10 @@
     #define UART_CONSOLE_BASE                (SOC_UART_0_REGS)
 #elif UART_CONSOLE_PORT == 1
     #define UART_CONSOLE_BASE                (SOC_UART_1_REGS)
+#elif UART_CONSOLE_PORT == 2
+    #define UART_CONSOLE_BASE                (SOC_UART_2_REGS)
+#elif UART_CONSOLE_PORT == 4
+    #define UART_CONSOLE_BASE                (SOC_UART_4_REGS)
 #else
     #error "Unknown UART_CONSOLE_PORT"
 #endif
@@ -185,6 +189,10 @@ void UARTConsoleInit(void)
     UART0ModuleClkConfig();
 #elif UART_CONSOLE_PORT == 1
     UART1ModuleClkConfig();
+#elif UART_CONSOLE_PORT == 2
+    UART2ModuleClkConfig();
+#elif UART_CONSOLE_PORT == 4
+    UART4ModuleClkConfig();
 #else
     #error "Unknown UART_CONSOLE_PORT"
 #endif

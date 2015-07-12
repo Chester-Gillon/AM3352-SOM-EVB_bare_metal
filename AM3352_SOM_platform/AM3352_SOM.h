@@ -21,6 +21,8 @@ extern "C" {
 
 void UART0ModuleClkConfig(void);
 void UART1ModuleClkConfig(void);
+void UART2ModuleClkConfig(void);
+void UART4ModuleClkConfig(void);
 void UARTPinMuxSetup(unsigned int instanceNum);
 void RTCModuleClkConfig(void);
 void SysPerfTimerSetup(void);
