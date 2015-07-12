@@ -12,12 +12,15 @@
 extern "C" {
 #endif
 
+/* Which UART is used for the console */
+#define UART_CONSOLE_PORT 0
 
 /*****************************************************************************
 **                    FUNCTION PROTOTYPES
 *****************************************************************************/
 
 void UART0ModuleClkConfig(void);
+void UART1ModuleClkConfig(void);
 void UARTPinMuxSetup(unsigned int instanceNum);
 void RTCModuleClkConfig(void);
 void SysPerfTimerSetup(void);

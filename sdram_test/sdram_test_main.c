@@ -106,14 +106,6 @@ static void UART_setup (void)
 {
     volatile unsigned int regVal;
 
-    /* Enable clock for UART0 */
-    regVal = (HWREG(SOC_CM_WKUP_REGS + CM_WKUP_UART0_CLKCTRL) &
-                    ~(CM_WKUP_UART0_CLKCTRL_MODULEMODE));
-
-    regVal |= CM_WKUP_UART0_CLKCTRL_MODULEMODE_ENABLE;
-
-    HWREG(SOC_CM_WKUP_REGS + CM_WKUP_UART0_CLKCTRL) = regVal;
-
     UARTStdioInit();
 }
 

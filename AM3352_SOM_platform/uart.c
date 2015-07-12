@@ -60,17 +60,30 @@
  */
 void UARTPinMuxSetup(unsigned int instanceNum)
 {
-     if(0 == instanceNum)
-     {
-          /* RXD */
-          HWREG(SOC_CONTROL_REGS + CONTROL_CONF_UART_RXD(0)) = 
-          (CONTROL_CONF_UART0_RXD_CONF_UART0_RXD_PUTYPESEL | 
-           CONTROL_CONF_UART0_RXD_CONF_UART0_RXD_RXACTIVE);
+    switch (instanceNum)
+    {
+    case 0:
+        /* RXD */
+        HWREG(SOC_CONTROL_REGS + CONTROL_CONF_UART_RXD(0)) =
+        (CONTROL_CONF_UART0_RXD_CONF_UART0_RXD_PUTYPESEL |
+         CONTROL_CONF_UART0_RXD_CONF_UART0_RXD_RXACTIVE);
 
-          /* TXD */
-          HWREG(SOC_CONTROL_REGS + CONTROL_CONF_UART_TXD(0)) = 
-           CONTROL_CONF_UART0_TXD_CONF_UART0_TXD_PUTYPESEL;
-     }
+        /* TXD */
+        HWREG(SOC_CONTROL_REGS + CONTROL_CONF_UART_TXD(0)) =
+         CONTROL_CONF_UART0_TXD_CONF_UART0_TXD_PUTYPESEL;
+        break;
+
+    case 1:
+        /* RXD */
+        HWREG(SOC_CONTROL_REGS + CONTROL_CONF_UART_RXD(1)) =
+        (CONTROL_CONF_UART1_RXD_CONF_UART1_RXD_PUTYPESEL |
+         CONTROL_CONF_UART1_RXD_CONF_UART1_RXD_RXACTIVE);
+
+        /* TXD */
+        HWREG(SOC_CONTROL_REGS + CONTROL_CONF_UART_TXD(1)) =
+         CONTROL_CONF_UART1_TXD_CONF_UART1_TXD_PUTYPESEL;
+        break;
+    }
 }
 
 /*
@@ -266,6 +279,41 @@ void UART0ModuleClkConfig(void)
            CM_WKUP_UART0_CLKCTRL_IDLEST_SHIFT) !=
           (HWREG(SOC_CM_WKUP_REGS + CM_WKUP_UART0_CLKCTRL) &
            CM_WKUP_UART0_CLKCTRL_IDLEST));
+}
+
+/*
+** This function enables the L3 and L4_PER interface clocks.
+** This also enables functional clocks of UART1 instance.
+*/
+
+void UART1ModuleClkConfig(void)
+{
+
+    /* Writing to MODULEMODE field of CM_PER_UART1_CLKCTRL register. */
+    HWREG(SOC_CM_PER_REGS + CM_PER_UART1_CLKCTRL) |=
+          CM_PER_UART1_CLKCTRL_MODULEMODE_ENABLE;
+
+    /* Waiting for MODULEMODE field to reflect the written value. */
+    while(CM_PER_UART1_CLKCTRL_MODULEMODE_ENABLE !=
+          (HWREG(SOC_CM_PER_REGS + CM_PER_UART1_CLKCTRL) &
+           CM_PER_UART1_CLKCTRL_MODULEMODE));
+
+    /*
+    ** Waiting for IDLEST field in CM_PER_UART1_CLKCTRL register to attain the
+    ** desired value.
+    */
+    while((CM_PER_UART1_CLKCTRL_IDLEST_FUNC <<
+           CM_PER_UART1_CLKCTRL_IDLEST_SHIFT) !=
+           (HWREG(SOC_CM_PER_REGS + CM_PER_UART1_CLKCTRL) &
+            CM_PER_UART1_CLKCTRL_IDLEST));
+
+    /*
+    ** Waiting for CLKACTIVITY_UART_GFCLK bit in CM_PER_L4LS_CLKSTCTRL
+    ** register to attain desired value.
+    */
+    while(CM_PER_L4LS_CLKSTCTRL_CLKACTIVITY_UART_GFCLK !=
+          (HWREG(SOC_CM_PER_REGS + CM_PER_L4LS_CLKSTCTRL) &
+           CM_PER_L4LS_CLKSTCTRL_CLKACTIVITY_UART_GFCLK));
 }
 
 /****************************** End of file *********************************/

@@ -49,7 +49,13 @@
 /******************************************************************************
 **              INTERNAL MACRO DEFINITIONS
 ******************************************************************************/
-#define UART_CONSOLE_BASE                    (SOC_UART_0_REGS)
+#if UART_CONSOLE_PORT == 0
+    #define UART_CONSOLE_BASE                (SOC_UART_0_REGS)
+#elif UART_CONSOLE_PORT == 1
+    #define UART_CONSOLE_BASE                (SOC_UART_1_REGS)
+#else
+    #error "Unknown UART_CONSOLE_PORT"
+#endif
 #define BAUD_RATE_115200                     (115200)
 #define UART_MODULE_INPUT_CLK                (48000000)
 
@@ -174,11 +180,17 @@ static void UartBaudRateSet(unsigned int baudRate)
 
 void UARTConsoleInit(void)
 {
-    /* Configuring the system clocks for UART0 instance. */
+    /* Configuring the system clocks for UART instance. */
+#if UART_CONSOLE_PORT == 0
     UART0ModuleClkConfig();
+#elif UART_CONSOLE_PORT == 1
+    UART1ModuleClkConfig();
+#else
+    #error "Unknown UART_CONSOLE_PORT"
+#endif
 
-    /* Performing the Pin Multiplexing for UART0 instance. */
-    UARTPinMuxSetup(0);
+    /* Performing the Pin Multiplexing for UART instance. */
+    UARTPinMuxSetup(UART_CONSOLE_PORT);
 
     UARTStdioInitExpClk(BAUD_RATE_115200, 1, 1);
 }
