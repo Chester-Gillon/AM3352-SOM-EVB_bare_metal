@@ -229,6 +229,7 @@ int main (void)
     uint32_t index;
     uint32_t num_errors;
     uint32_t offset;
+    unsigned int write_duration, read_duration;
 
     MMUConfigAndEnable ();
     CacheEnable (CACHE_ALL);
@@ -244,11 +245,14 @@ int main (void)
     {
         time_resolve (RTCTimeGet (SOC_RTC_0_REGS));
         UARTprintf ("Write test starting\n");
+        (void) SysPerfTimerConfig (1);
         for (index = 0; index < SDRAM_SIZE_WORDS; index++)
         {
             sdram_base[index] = index + offset;
         }
+        write_duration = SysPerfTimerConfig (0);
 
+        (void) SysPerfTimerConfig (1);
         for (index = 0; index < SDRAM_SIZE_WORDS; index++)
         {
             if (sdram_base[index] != (index + offset))
@@ -256,8 +260,10 @@ int main (void)
                 num_errors++;
             }
         }
+        read_duration = SysPerfTimerConfig (0);
 
         time_resolve (RTCTimeGet (SOC_RTC_0_REGS));
+        UARTprintf ("Write duration = %u  Read duration = %u\n", write_duration, read_duration);
         UARTprintf ("After index write num_errors=%u\n", num_errors);
 
         for (index = 0; index < SDRAM_SIZE_WORDS; index++)
