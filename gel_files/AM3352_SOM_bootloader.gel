@@ -1,0 +1,24 @@
+// @file AM3352_SOM_bootloader.gel
+// @date 19 Jul 2015
+// @author Chester Gillon
+// @brief GEL file to allow the bootloader to be debugged following a system reset
+
+
+//Set the processor to ARM mode and Supervisor mode after a file is loaded, on a 
+//restart or on a reset
+//This will facilitate code loading and debug by putting the processor in a known
+//state
+
+
+AM335xStartState()
+{
+  CPSR &= ~0x20;
+  CPSR = (CPSR & ~0x1F) | 0x13;   
+}
+
+
+OnFileLoaded()
+{
+   AM335xStartState();
+}
+

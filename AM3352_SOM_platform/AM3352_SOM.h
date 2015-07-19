@@ -35,7 +35,8 @@ void DMTimer7ModuleClkConfig(void);
 void DMTimer1msModuleClkConfig(unsigned int clkselect);
 unsigned int pmu_get_cycle_count (void);
 void enable_cycle_count (void);
-
+void HSMMCSDModuleClkConfig(void);
+void HSMMCSDPinMuxSetup(void);
 #ifdef __cplusplus
 }
 #endif

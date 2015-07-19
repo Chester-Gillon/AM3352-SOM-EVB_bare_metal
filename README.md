@@ -1,5 +1,5 @@
 # AM3352-SOM-EVB_bare_metal
-Expirements for an Olimex AM3352-SOM-EVB (https://www.olimex.com/Products/SOM/AM3352/AM3352-SOM-EVB/open-source-hardware)
+Experiments for an Olimex AM3352-SOM-EVB (https://www.olimex.com/Products/SOM/AM3352/AM3352-SOM-EVB/open-source-hardware)
 which don't involve Linux.
 
 The programs have been developed using:
@@ -8,3 +8,9 @@ The programs have been developed using:
 - AM335X StarterWare 02.00.01.01
   STARTERWARE_SW_ROOT, as a Linked Resource path variable at the workspace level,
   should be set to the root directory of the StarterWare installation
+
+@todo The bootloader works when compiled for Debug, but when compiled for Release fails with:
+StarterWare AM3352 SOM Boot Loader
+
+ Unable to open application file
+
