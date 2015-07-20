@@ -14,6 +14,7 @@ StarterWare AM3352 SOM Boot Loader
 
  Unable to open application file
 
+Need to determine if there is a compiler bug or something else.
 Temporary changes made to investigate bootloader failure:
 a) Leave compiler version as v5.2.4 and changing bl_hsmmcsd.c source file to be compiled with Optimization Level 1, rather than 2
    allows the bootloader to run when compiled for release
@@ -22,5 +23,10 @@ b) Change compiler version to v5.1.12 and bootloader still failed to run when co
 
 c) Change compiler version to v5.0.11 and bootloader run when compiled for release
 
-Changing the bl_hsmmcsd.c source file to be compiled with Optimization Level 1, rather than 2, allows the booterload to run when compiled for release.
-Need to determine if there is a compiler bug or something else.
+Inspecting the bl_hsmmcsd.asm assembler list shows that the v5.0.11 compiler is producing the following warning, which v5.1.12 and v5.2.4 don't produce, which may invalidate the comparison:
+;******************************************************************************
+;*                                                                            *
+;* Using -g (debug) with optimization (-o2) may disable key optimizations!    *
+;*                                                                            *
+;******************************************************************************
+ 
