@@ -1,5 +1,5 @@
 /**
- * \file   hs_mmcsd.c
+ * \file   platform_hs_mmcsd.c
  *
  * \brief  This file contains functions which configure the HS/MMCSD controller
  */
