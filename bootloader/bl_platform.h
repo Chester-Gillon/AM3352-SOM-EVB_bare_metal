@@ -61,6 +61,24 @@
 #endif
 
 
+#if OPT_LEVEL > 1
+/* @bug As of TI ARM Compiler v5.2.4 incorrect code is generated for the HSMMCSDXferStatusGet
+ *      function when --opt_level=2, such that the bootloader fails to read the image from the SD card.
+ *      See https://e2e.ti.com/support/development_tools/compiler/f/343/t/441104 for details.
+ *
+ *      As a work-around, set HSMMCSDXferStatusGet to compile for --opt_level=1 when this program
+ *      is compiled for the Release platform.
+ *
+ *      The FUNCTION_OPTIONS is set in this include file to avoid having to modify the
+ *      STARTERWARE_SW_ROOT/bootloader/src/bl_hsmmcsd.c linked resource.
+ *      The side effect is a warning that HSMMCSDXferStatusGet is undefined.
+ *
+ * @todo The OPT_LEVEL macro needs to be set in the project properties to match the optimization level
+ *       set in the compiler options.
+ */
+#pragma FUNCTION_OPTIONS(HSMMCSDXferStatusGet,"--opt_level=1")
+#endif
+
 /******************************************************************************
 **                        Macro Definitions 
 *******************************************************************************/
