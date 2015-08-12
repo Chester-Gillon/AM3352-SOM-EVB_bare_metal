@@ -29,6 +29,7 @@
 //****************************************************
 #define PRCM_BASE_ADDR                    (0x44E00000)
 #define CM_PER_EMIF_CLKCTRL               (PRCM_BASE_ADDR + 0x028)
+#define CM_PER_OCMCRAM_CLKCTRL            (PRCM_BASE_ADDR + 0x02C)
 #define CM_PER_EMIF_FW_CLKCTRL            (PRCM_BASE_ADDR + 0x0D0)
 
 #define CM_WKUP_CLKSTCTRL                 (PRCM_BASE_ADDR + 0x400)
@@ -334,6 +335,7 @@ OnTargetConnect()
     GEL_MapAddStr(0x40000000, 0, 0x0002C000, "R", 0);    // Boot ROM (also at 0x20000)
     GEL_MapAddStr(0x402F0400, 0, 0x0000FC00, "R|W", 0);  // SRAM Internal
     GEL_MapAddStr(0x40300000, 0, 0x00010000, "R|W", 0);  // OCMC-RAM
+    GEL_MapAddStr(0x4B162000, 0, 0x00001000, "R|W", 0);  // DebugSS_ETB
     GEL_MapAddStr(0x44000000, 0, 0x00400000, "R|W", 0);  // L3F CFG Regs
     GEL_MapAddStr(0x44800000, 0, 0x00400000, "R|W", 0);  // L3S CFG Regs
     GEL_MapAddStr(0x44C00000, 0, 0x00400000, "R|W", 0);  // L4_WKUP
@@ -348,10 +350,32 @@ OnTargetConnect()
     GEL_MapAddStr(0x50000000, 0, 0x01000000, "R|W", 0);  // GPMC Regs
     GEL_MapAddStr(0x80000000, 0, 0x20000000, "R|W", 0);  // 512MB DDR3 external memory
     GEL_MapOn();
+    AM335xForceSystemReset();
     AM335xStartState();
     AM3352_SOM_Initialization();
     Disable_Watchdog();
 
+}
+
+/* Force the Cortex-A8 and its peripherals to the reset state, so the debugger can
+ * connect regardless of the current state.
+ */
+AM335xForceSystemReset ()
+{
+    /* Enable wait-in-reset for the Cortex-A8, so that after a system reset the boot ROM
+     * can't start to load a program. */
+    GEL_SetWaitInResetMode(1);
+    
+    /* Cause the IcePick to assert a System Reset */
+    GEL_AdvancedReset("System Reset");
+    
+    /* @todo GEL_AdvancedReset is asynchronous, which can cause subsequent accesses to
+     * the Cortex-A8 to fail if attempted before the System Reset has completed.
+     * Adding a GEL_Halt() here appears to stop subsequent failures. Not sure if GEL_Halt()
+     * forces a wait for the reset to complete, or simply delays things sufficient to hide
+     * the problem.
+     */
+    GEL_Halt();
 }
 
 //******************************************************************************
@@ -362,6 +386,7 @@ AM3352_SOM_Initialization()
 {
     GEL_TextOut("****  AM3352_SOM Initialization is in progress .......... \n","Output",1,1,1);    
     ARM_Turbo_Config();
+    OCMCRAM_Config();
     DDR3_EMIF_Config();
     GEL_TextOut("****  AM3352_SOM Initialization is Done ****************** \n\n\n","Output",1,1,1);   
 }
@@ -593,6 +618,13 @@ DISP_PLL_Config(UWORD32 CLKIN,UWORD32 N,UWORD32 M,UWORD32 M2)
     GEL_TextOut("****  DISP PLL Config is DONE .......... \n","Output",1,1,1);
 }
 
+/* Enable L3 OCMCRAM clocks to allow access to OCMCRAM.
+ * This is necessary if wait-in-reset is active, which means that the boot ROM won't run to perform clock configuration.
+ */
+OCMCRAM_Config ()
+{
+    WR_MEM_32(CM_PER_OCMCRAM_CLKCTRL, 0x2);
+}
 
 //##############################################################################
 //##############################################################################

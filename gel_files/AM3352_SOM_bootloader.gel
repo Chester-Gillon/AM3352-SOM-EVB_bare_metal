@@ -4,21 +4,307 @@
 // @brief GEL file to allow the bootloader to be debugged following a system reset
 
 
-//Set the processor to ARM mode and Supervisor mode after a file is loaded, on a 
-//restart or on a reset
-//This will facilitate code loading and debug by putting the processor in a known
-//state
+//****************************************************
+//PRCM module definitions
+//****************************************************
+#define PRCM_BASE_ADDR                    (0x44E00000)
+#define CM_PER_EMIF_CLKCTRL               (PRCM_BASE_ADDR + 0x028)
+#define CM_PER_OCMCRAM_CLKCTRL            (PRCM_BASE_ADDR + 0x02C)
+#define CM_PER_EMIF_FW_CLKCTRL            (PRCM_BASE_ADDR + 0x0D0)
+#define CM_PER_CLKDIV32K_CLKCTRL          (PRCM_BASE_ADDR + 0x14C)
 
+#define CM_WKUP_CLKSTCTRL                 (PRCM_BASE_ADDR + 0x400)
+#define CM_WKUP_GPIO0_CLKCTRL             (PRCM_BASE_ADDR + 0x408)
+#define CM_AUTOIDLE_DPLL_MPU              (PRCM_BASE_ADDR + 0x41C)
+#define CM_IDLEST_DPLL_MPU                (PRCM_BASE_ADDR + 0x420)
+#define CM_CLKSEL_DPLL_MPU                (PRCM_BASE_ADDR + 0x42C)
+#define CM_AUTOIDLE_DPLL_DDR              (PRCM_BASE_ADDR + 0x430)
+#define CM_IDLEST_DPLL_DDR                (PRCM_BASE_ADDR + 0x434)
+#define CM_CLKSEL_DPLL_DDR                (PRCM_BASE_ADDR + 0x440)
+#define CM_AUTOIDLE_DPLL_DISP             (PRCM_BASE_ADDR + 0x444)
+#define CM_IDLEST_DPLL_DISP               (PRCM_BASE_ADDR + 0x448)
+#define CM_CLKSEL_DPLL_DISP               (PRCM_BASE_ADDR + 0x454)
+#define CM_AUTOIDLE_DPLL_CORE             (PRCM_BASE_ADDR + 0x458)
+#define CM_IDLEST_DPLL_CORE               (PRCM_BASE_ADDR + 0x45C)
+#define CM_CLKSEL_DPLL_CORE               (PRCM_BASE_ADDR + 0x468)
+#define CM_AUTOIDLE_DPLL_PER              (PRCM_BASE_ADDR + 0x46C)
+#define CM_IDLEST_DPLL_PER                (PRCM_BASE_ADDR + 0x470)
+#define CM_CLKSEL_DPLL_PER                (PRCM_BASE_ADDR + 0x49C)
 
+#define CM_DIV_M4_DPLL_CORE               (PRCM_BASE_ADDR + 0x480)
+#define CM_DIV_M5_DPLL_CORE               (PRCM_BASE_ADDR + 0x484)
+#define CM_CLKMODE_DPLL_MPU               (PRCM_BASE_ADDR + 0x488)
+#define CM_CLKMODE_DPLL_PER               (PRCM_BASE_ADDR + 0x48C)
+#define CM_CLKMODE_DPLL_CORE              (PRCM_BASE_ADDR + 0x490)
+#define CM_CLKMODE_DPLL_DDR               (PRCM_BASE_ADDR + 0x494)
+#define CM_CLKMODE_DPLL_DISP              (PRCM_BASE_ADDR + 0x498)
+
+#define CM_DIV_M2_DPLL_DDR                (PRCM_BASE_ADDR + 0x4A0)
+#define CM_DIV_M2_DPLL_DISP               (PRCM_BASE_ADDR + 0x4A4)
+#define CM_DIV_M2_DPLL_MPU                (PRCM_BASE_ADDR + 0x4A8)
+#define CM_DIV_M2_DPLL_PER                (PRCM_BASE_ADDR + 0x4AC)
+#define CM_DIV_M6_DPLL_CORE               (PRCM_BASE_ADDR + 0x4D8)
+
+#define CM_CLKOUT_CTRL                    (PRCM_BASE_ADDR + 0x700)
+
+//****************************************************
+//Control module definitions
+//****************************************************
+
+#define CONTROL_BASE_ADDR                 (0x44E10000)
+
+#define CONTROL_STATUS                    (CONTROL_BASE_ADDR + 0x40)
+
+//*******************************************************************
+//Watchdog Timer registers
+//*******************************************************************
+#define    WDT1_BASE_ADDR                                        (0x44E35000)  
+#define    WDT1_WSPR                                             (WDT1_BASE_ADDR + 0x48)
+
+//*****************************************************************************
+//Read write prototype
+//*****************************************************************************
+#define WR_MEM_32(addr, data) *(unsigned int*)(addr) = (unsigned int)(data)
+#define RD_MEM_32(addr)       *(unsigned int*)(addr)
+#define UWORD32               unsigned int
+
+//*****************************************************************************
+//Global variables
+//*****************************************************************************
+UWORD32 CLKIN;
+
+//Watchdog is disabled to eliminate warm resets during debug
+Disable_Watchdog()
+{
+    WR_MEM_32(WDT1_WSPR,0x0000AAAA);
+    WR_MEM_32(WDT1_WSPR,0x00005555);
+}
+
+// Set the processor to ARM mode and Supervisor mode.
+// This will facilitate code loading and debug by putting the processor in a known
+// state.
 AM335xStartState()
 {
-  CPSR &= ~0x20;
-  CPSR = (CPSR & ~0x1F) | 0x13;   
+    CPSR &= ~0x20;
+    CPSR = (CPSR & ~0x1F) | 0x13;   
 }
 
-
-OnFileLoaded()
+OnReset()
 {
    AM335xStartState();
+   Disable_Watchdog();
 }
 
+OnTargetConnect()
+{
+    AM335xForceSystemReset();
+    AM335xStartState();
+    AM3352_SOM_Initialization();
+    Disable_Watchdog();
+}
+
+/* Force the Cortex-A8 and its peripherals to the reset state, so the debugger can
+ * connect regardless of the current state.
+ */
+AM335xForceSystemReset ()
+{
+    /* Enable wait-in-reset for the Cortex-A8, so that after a system reset the boot ROM
+     * can't start to load a program. */
+    GEL_SetWaitInResetMode(1);
+    
+    /* Cause the IcePick to assert a System Reset */
+    GEL_AdvancedReset("System Reset");
+    
+    /* @todo GEL_AdvancedReset is asynchronous, which can cause subsequent accesses to
+     * the Cortex-A8 to fail if attempted before the System Reset has completed.
+     * Adding a GEL_Halt() here appears to stop subsequent failures. Not sure if GEL_Halt()
+     * forces a wait for the reset to complete, or simply delays things sufficient to hide
+     * the problem.
+     */
+    GEL_Halt();
+}
+
+
+/* Enable L3 OCMCRAM clocks to allow access to OCMCRAM.
+ * This is necessary if wait-in-reset is active, which means that the boot ROM won't run to perform clock configuration.
+ */
+OCMCRAM_Config ()
+{
+    WR_MEM_32(CM_PER_OCMCRAM_CLKCTRL, 0x2);
+}
+
+//******************************************************************************
+//System Initialization
+//******************************************************************************
+AM3352_SOM_Initialization()
+{
+    GEL_TextOut("****  AM3352_SOM Initialization is in progress .......... \n","Output",1,1,1);    
+    ARM_boot_ROM_Config();
+    OCMCRAM_Config();
+    GEL_TextOut("****  AM3352_SOM Initialization is Done ****************** \n\n\n","Output",1,1,1);   
+}
+
+GetInputClockFrequency()
+{
+    UWORD32 temp;
+    
+    temp = RD_MEM_32(CONTROL_STATUS) >> 22;
+    temp = temp & 0x3;
+    if (temp == 0)
+    {   
+        CLKIN = 19;  //19.2MHz
+        GEL_TextOut("Input Clock Read from SYSBOOT[15:14]:  19.2MHz\n","Output",1,1,1);
+    }   
+    if (temp == 1)
+    {
+        CLKIN = 24;  //24MHz
+        GEL_TextOut("Input Clock Read from SYSBOOT[15:14]:  24MHz\n","Output",1,1,1);
+    }   
+    if (temp == 2)
+    {
+        CLKIN = 25;  //25MHz
+        GEL_TextOut("Input Clock Read from SYSBOOT[15:14]:  25MHz\n","Output",1,1,1);
+    }   
+    if (temp == 3)
+    { 
+        CLKIN = 26;  //26MHz
+        GEL_TextOut("Input Clock Read from SYSBOOT[15:14]:  26MHz\n","Output",1,1,1);
+    }   
+}
+
+/* Configure the same PLL frequencies as performed by the boot ROM */
+ARM_boot_ROM_Config()
+{
+    unsigned int i;
+    for(i=0;i<100000;i++);
+    GEL_TextOut("****  AM335x ALL PLL Config for OPP == Turbo is in progress ......... \n","Output",1,1,1);
+    GetInputClockFrequency();
+    if(CLKIN==24)
+    {
+       MPU_PLL_Config(  CLKIN, 23, 500, 1);
+       CORE_PLL_Config( CLKIN, 23, 1000, 10, 8, 4);
+       PER_PLL_Config(  CLKIN, 23, 960, 5);
+       GEL_TextOut(" ****  AM335x ALL PLL Config for OPP == Turbo is done ......... \n","Output",1,1,1);
+       
+       /* Enable the CLKDIV32K clock which is required for the MMC/SD Card debounce */
+       WR_MEM_32(CM_PER_CLKDIV32K_CLKCTRL, 0x2);
+   }
+   else
+      GEL_TextOut("****  AM335x PLL Config failed!!  Check SYSBOOT[15:14] for proper input freq config \n","Output",1,1,1);
+}
+
+PER_PLL_Config(UWORD32 CLKIN,UWORD32 N,UWORD32 M,UWORD32 M2)
+{
+    UWORD32 ref_clk,clk_out = 0;
+    UWORD32 clkmode,clksel,div_m2,idlest_dpll;
+
+    ref_clk     = CLKIN/(N+1);
+    clk_out     = (ref_clk*M)/M2;
+
+    clkmode=RD_MEM_32(CM_CLKMODE_DPLL_PER);
+    clksel= RD_MEM_32(CM_CLKSEL_DPLL_PER);
+    div_m2= RD_MEM_32(CM_DIV_M2_DPLL_PER);
+
+    clkmode =(clkmode&0xfffffff8)|0x00000004;
+    WR_MEM_32(CM_CLKMODE_DPLL_PER,clkmode);
+    while((RD_MEM_32(CM_IDLEST_DPLL_PER) & 0x00000100 )!=0x00000100);
+
+    GEL_TextOut("****  PER DPLL Bypassed\n","Output",1,1,1);
+
+    clksel = clksel & (~0xFF0FFFFF);
+    clksel = clksel | 0x04000000;  //SD divider = 4 for both OPP100 and OPP50
+    clksel = clksel | ((M <<0x8) | N);
+    WR_MEM_32(CM_CLKSEL_DPLL_PER,clksel);
+    div_m2= 0xFFFFFF80 | M2;
+    WR_MEM_32(CM_DIV_M2_DPLL_PER,div_m2);
+    clkmode =(clkmode&0xfffffff8)|0x00000007;
+    WR_MEM_32(CM_CLKMODE_DPLL_PER,clkmode);
+
+    while((RD_MEM_32(CM_IDLEST_DPLL_PER) & 0x00000001 )!=0x00000001);
+
+    GEL_TextOut("****  PER DPLL Locked\n","Output",1,1,1);
+}
+
+//**********************************************************************
+//PLL Configuration functions
+//**********************************************************************
+MPU_PLL_Config(UWORD32 CLKIN,UWORD32 N,UWORD32 M,UWORD32 M2)
+{
+    UWORD32 ref_clk,clk_out = 0;
+    UWORD32 clkmode,clksel,div_m2,idlest_dpll;
+    UWORD32 temp,i;
+
+    ref_clk     = CLKIN/(N+1);
+    clk_out     = (ref_clk*M)/M2;
+
+    clkmode=RD_MEM_32(CM_CLKMODE_DPLL_MPU);
+    clksel= RD_MEM_32(CM_CLKSEL_DPLL_MPU);
+    div_m2= RD_MEM_32(CM_DIV_M2_DPLL_MPU);
+
+    GEL_TextOut("****  Going to Bypass... \n","Output",1,1,1);
+
+    //put the DPLL in bypass mode
+    WR_MEM_32(CM_CLKMODE_DPLL_MPU,0x4);
+
+    while(((RD_MEM_32(CM_IDLEST_DPLL_MPU) & 0x101) != 0x00000100)); //wait for bypass status
+
+    GEL_TextOut("****  Bypassed, changing values... \n","Output",1,1,1);
+
+    //set multiply and divide values
+    clksel = clksel & (~0x7FFFF);
+    clksel = clksel | ((M <<0x8) | N);
+    WR_MEM_32(CM_CLKSEL_DPLL_MPU,clksel);
+    div_m2 = div_m2 & ~0x1F;
+    div_m2 = div_m2 | M2;  
+    WR_MEM_32(CM_DIV_M2_DPLL_MPU,div_m2);
+
+    GEL_TextOut("****  Locking ARM PLL\n","Output",1,1,1);
+    //now lock the DPLL
+    clkmode = clkmode | 0x7;  //enables lock mode
+    WR_MEM_32(CM_CLKMODE_DPLL_MPU,clkmode);
+    while(((RD_MEM_32(CM_IDLEST_DPLL_MPU) & 0x101) != 0x1)); //wait for lock
+}
+
+CORE_PLL_Config(UWORD32 CLKIN,UWORD32 N,UWORD32 M,UWORD32 M4,UWORD32 M5,UWORD32 M6)
+{
+    UWORD32 ref_clk,clk_out4,clk_out5,clk_out6;
+    UWORD32 clkmode,clksel,div_m4,div_m5,div_m6,idlest_dpll;
+
+    ref_clk     = CLKIN/(N+1);
+    clk_out4     = (ref_clk*M)/M4;  //M4=200MHz
+    clk_out5     = (ref_clk*M)/M5;  //M5=250MHz
+    clk_out6     = (ref_clk*M)/M6;  //M6=500MHz
+
+    clkmode=RD_MEM_32(CM_CLKMODE_DPLL_CORE);
+    clksel= RD_MEM_32(CM_CLKSEL_DPLL_CORE);
+    div_m4= RD_MEM_32(CM_DIV_M4_DPLL_CORE); 
+    div_m5= RD_MEM_32(CM_DIV_M5_DPLL_CORE); 
+    div_m6= RD_MEM_32(CM_DIV_M6_DPLL_CORE); 
+
+    //put DPLL in bypass mode
+    clkmode = (clkmode & 0xfffffff8)|0x00000004;
+    WR_MEM_32(CM_CLKMODE_DPLL_CORE,clkmode);
+    while((RD_MEM_32(CM_IDLEST_DPLL_CORE) & 0x00000100 )!=0x00000100); //wait for bypass status
+
+    GEL_TextOut("****  Core Bypassed\n","Output",1,1,1);
+
+    //set multiply and divide values
+    clksel = clksel & (~0x7FFFF);
+    clksel = clksel | ((M <<0x8) | N);
+    WR_MEM_32(CM_CLKSEL_DPLL_CORE,clksel);
+    div_m4= M4;   //200MHz
+    WR_MEM_32(CM_DIV_M4_DPLL_CORE,div_m4);
+    div_m5=  M5;  //250MHz
+    WR_MEM_32(CM_DIV_M5_DPLL_CORE,div_m5);
+    div_m6=  M6;  //500MHz
+    WR_MEM_32(CM_DIV_M6_DPLL_CORE,div_m6);
+
+    GEL_TextOut("****  Now locking Core...\n","Output",1,1,1);
+
+    //now lock the PLL
+    clkmode =(clkmode&0xfffffff8)|0x00000007;
+    WR_MEM_32(CM_CLKMODE_DPLL_CORE,clkmode);
+
+    while((RD_MEM_32(CM_IDLEST_DPLL_CORE) & 0x00000001 )!=0x00000001);
+    GEL_TextOut("****  Core locked\n","Output",1,1,1);
+}
