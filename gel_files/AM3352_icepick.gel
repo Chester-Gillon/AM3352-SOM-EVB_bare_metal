@@ -1,0 +1,19 @@
+// @file AM3352_icepick.gel
+// @date 13 Augl 2015
+// @author Chester Gillon
+// @brief GEL file for the IcePick in the AM3352 SOM
+// @details Upon connection forces the Cortex-A8 and its peripherals to the reset state,
+//          so the debugger can connect regardless of the current state.
+
+OnTargetConnect ()
+{
+    /* Enable wait-in-reset for the Cortex-A8, so that after a system reset the boot ROM
+     * can't start to load a program.
+     * 
+     * "CortxA8" is mis-spelt to match the desc in
+     * <ccs_install_directory>/ccsv6/ccs_base/common/targetdb/devices/AM3352.xml */
+    GEL_EvalOnTarget ("CortxA8", "GEL_SetWaitInResetMode(1)");
+
+    /* Cause the IcePick to assert a System Reset */
+    GEL_Reset ();
+}

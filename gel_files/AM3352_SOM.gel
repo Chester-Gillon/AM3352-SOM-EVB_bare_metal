@@ -350,32 +350,10 @@ OnTargetConnect()
     GEL_MapAddStr(0x50000000, 0, 0x01000000, "R|W", 0);  // GPMC Regs
     GEL_MapAddStr(0x80000000, 0, 0x20000000, "R|W", 0);  // 512MB DDR3 external memory
     GEL_MapOn();
-    AM335xForceSystemReset();
     AM335xStartState();
     AM3352_SOM_Initialization();
     Disable_Watchdog();
 
-}
-
-/* Force the Cortex-A8 and its peripherals to the reset state, so the debugger can
- * connect regardless of the current state.
- */
-AM335xForceSystemReset ()
-{
-    /* Enable wait-in-reset for the Cortex-A8, so that after a system reset the boot ROM
-     * can't start to load a program. */
-    GEL_SetWaitInResetMode(1);
-    
-    /* Cause the IcePick to assert a System Reset */
-    GEL_AdvancedReset("System Reset");
-    
-    /* @todo GEL_AdvancedReset is asynchronous, which can cause subsequent accesses to
-     * the Cortex-A8 to fail if attempted before the System Reset has completed.
-     * Adding a GEL_Halt() here appears to stop subsequent failures. Not sure if GEL_Halt()
-     * forces a wait for the reset to complete, or simply delays things sufficient to hide
-     * the problem.
-     */
-    GEL_Halt();
 }
 
 //******************************************************************************
