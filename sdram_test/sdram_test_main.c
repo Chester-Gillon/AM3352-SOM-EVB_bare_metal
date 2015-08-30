@@ -223,6 +223,73 @@ static void check_clock_frequencies (void)
     UARTprintf ("cycle counter Ticks Per Second = %u\n", stop_cycle_count - start_cycle_count);
 }
 
+/**
+ * @brief Delay for a number of CPU clock cycles
+ */
+static void busy_delay (const uint32_t delay)
+{
+	const uint32_t start_time = pmu_get_cycle_count ();
+
+	while ((pmu_get_cycle_count () - start_time) < delay)
+	{
+	}
+}
+
+/**
+ * @brief To be used as a PC Trace trigger point for the start of the mmu_and_cache_off_delay function
+ */
+void mmu_and_cache_off_start_trigger (void)
+{
+}
+
+/**
+ * @brief To be used as a PC Trace trigger point for the completion of the mmu_and_cache_off_delay function
+ */
+void mmu_and_cache_off_end_trigger (void)
+{
+}
+
+/**
+ * @brief Provide a test for PC Trace capture while the MMU and cache are disabled
+ * @details This allows the execution time for instructions to be examined when the MMU and cache are disabled,
+ *          by looking at the delta Cycle count in the Trace Viewer.
+ *
+ *          The calls to mmu_and_cache_off_start_trigger and mmu_and_cache_off_end_trigger are done in assembler,
+ *          to stop the compiler optimizer from removing the calls to the stub functions.
+ */
+static void mmu_and_cache_off_delay (void)
+{
+	asm (" bl mmu_and_cache_off_start_trigger");
+	busy_delay (10000);
+	asm (" bl mmu_and_cache_off_end_trigger");
+}
+
+/**
+ * @brief To be used as a PC Trace trigger point for the start of the mmu_and_cache_on_delay function
+ */
+void mmu_and_cache_on_start_trigger (void)
+{
+}
+
+/**
+ * @brief To be used as a PC Trace trigger point for the completion of the mmu_and_cache_on_delay function
+ */
+void mmu_and_cache_on_end_trigger (void)
+{
+}
+
+/**
+ * @brief Provide a test for PC Trace capture while the MMU and cache are enabled
+ * @details This allows the execution time for instructions to be examined when the MMU and cache are enabled,
+ *          by looking at the delta Cycle count in the Trace Viewer.
+ */
+static void mmu_and_cache_on_delay (void)
+{
+	asm (" bl mmu_and_cache_on_start_trigger");
+	busy_delay (10000);
+	asm (" bl mmu_and_cache_on_end_trigger");
+}
+
 int main (void)
 {
     uint32_t *const sdram_base = (uint32_t *) 0x80000000;
@@ -231,12 +298,14 @@ int main (void)
     uint32_t offset;
     unsigned int write_duration, read_duration;
 
+    enable_cycle_count ();
+    mmu_and_cache_off_delay ();
     MMUConfigAndEnable ();
     CacheEnable (CACHE_ALL);
+    mmu_and_cache_on_delay ();
     UART_setup ();
     RTC_setup ();
     SysPerfTimerSetup ();
-    enable_cycle_count ();
     check_clock_frequencies ();
 
     num_errors = 0;

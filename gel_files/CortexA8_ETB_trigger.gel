@@ -1,0 +1,44 @@
+// @file CortexA8_ETB_trigger.gel
+// @date 30 Aug 2015
+// @author Chester Gillon
+// @brief GEL file for the Cortex-A8 in an AM3352 to cause the ETB to be triggered to stop when a function is called
+// @details Usage is:
+//  1) Open CCS Tools -> Hardware Trace Analyzer -> PC Trace.
+//  2) Under ETB Receiver options set the "Trace collection wrt trigger" to the required value of "Before", "After" or "About".
+//     This programs the ETB Trigger Counter Register which selects how many samples after the trigger point at which the capture is stopped.
+//  3) Start the Trace Collection
+//  4) Use CCS Scripts -> Trace -> Trigger Function. In the "Trigger Function" dialog enter the name of the function to be used as the trigger (when the function is called)
+//     and Select "Execute".
+//  5) Run the program. When the Trigger Function is executed the ETB trace capture will be triggered to stop. 
+//
+// @todo Once the trigger has stopped the ETB, the ETB doesn't capture any more data until the board has been power-cycled.
+
+/* Address Comparator Access Type Registers values in the Cortex-A8 ETM architecture v3.3. */
+#define ETM_ADDR_ACC_ACCESS_TYPE_INSTRUCTION_EXECUTE     0x1
+#define ETM_ADDR_ACC_COMPARISON_ACCESS_SIZE_ARM         (0x3 << 3)
+#define ETM_ADDR_ACC_DATA_VALUE_COMPARISON_CONTROL_NONE (0x0 << 5)
+#define ETM_ADDR_ACC_EXACT_MATCH                        (0x1 << 7)
+#define ETM_ADDR_ACC_CONTEXT_ID_IGNORE                  (0x0 << 8)
+#define ETM_ADDR_ACC_SECURITY_LEVEL_CONTROL_IGNORE      (0x0 << 11)
+
+/* Cortex A8 ETB Registers */
+#define ETB_BASE_ADDR 0x4B162000
+#define ETB_FFCR (ETB_BASE_ADDR + 0x304)
+#define ETB_FFCR_STOP_TRIG (1 << 13) /* Stop the formatter when a Trigger Event has been observed. */
+
+menuitem "Trace"
+dialog SetETBTrigger(triggerFunction "Trigger Function")
+{
+	/* Generate an ETM trigger when the first instruction in triggerFunction is executed */ 
+	ETM_ADDR_CMP1 = triggerFunction;
+	ETM_ADDR_ACC1 = ETM_ADDR_ACC_ACCESS_TYPE_INSTRUCTION_EXECUTE |
+			ETM_ADDR_ACC_COMPARISON_ACCESS_SIZE_ARM |
+			ETM_ADDR_ACC_DATA_VALUE_COMPARISON_CONTROL_NONE |
+			ETM_ADDR_ACC_EXACT_MATCH |
+			ETM_ADDR_ACC_CONTEXT_ID_IGNORE |
+			ETM_ADDR_ACC_SECURITY_LEVEL_CONTROL_IGNORE;
+	ETM_TRIG_EVNT = 0; /* Address Comparitor A */
+	
+	/* Configure the ETB to stop capturing when an ETM trigger occurs */
+	WR_MEM_32 (ETB_FFCR, RD_MEM_32 (ETB_FFCR) | ETB_FFCR_STOP_TRIG);
+}

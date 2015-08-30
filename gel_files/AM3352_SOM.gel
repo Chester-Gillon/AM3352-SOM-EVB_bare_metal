@@ -291,6 +291,11 @@
 //*****************************************************************************
 UWORD32 CLKIN;
 
+StartUp ()
+{
+	GEL_LoadGel ("$(GEL_file_dir)\\CortexA8_ETB_trigger.gel");
+}
+
 //Watchdog is disabled to eliminate warm resets during debug
 Disable_Watchdog()
 {

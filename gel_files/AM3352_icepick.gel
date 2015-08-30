@@ -1,5 +1,5 @@
 // @file AM3352_icepick.gel
-// @date 13 Augl 2015
+// @date 13 Aug 2015
 // @author Chester Gillon
 // @brief GEL file for the IcePick in the AM3352 SOM
 // @details Upon connection forces the Cortex-A8 and its peripherals to the reset state,
