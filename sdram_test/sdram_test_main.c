@@ -104,8 +104,6 @@ static void MMUConfigAndEnable(void)
  */
 static void UART_setup (void)
 {
-    volatile unsigned int regVal;
-
     UARTStdioInit();
 }
 
