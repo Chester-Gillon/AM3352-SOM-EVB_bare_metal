@@ -37,6 +37,10 @@ unsigned int pmu_get_cycle_count (void);
 void enable_cycle_count (void);
 void HSMMCSDModuleClkConfig(void);
 void HSMMCSDPinMuxSetup(void);
+void CPSWPinMuxSetup(void);
+void CPSWClkEnable(void);
+void EVMPortGMIIModeSelect(void);
+void EVMMACAddrGet(unsigned int addrIdx, unsigned char *macAddr);
 #ifdef __cplusplus
 }
 #endif

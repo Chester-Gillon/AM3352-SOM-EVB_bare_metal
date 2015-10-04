@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configurations XML_version="1.2" id="configurations_0">
+    <configuration XML_version="1.2" id="configuration_0">
+        <instance XML_version="1.2" desc="Blackhawk USB560-M Emulator, 20-pin JTAG Cable" href="connections/BH-USB560m_20pin_Connection.xml" id="Blackhawk USB560-M Emulator, 20-pin JTAG Cable" xml="BH-USB560m_20pin_Connection.xml" xmlpath="connections"/>
+        <connection XML_version="1.2" id="Blackhawk USB560-M Emulator, 20-pin JTAG Cable">
+            <instance XML_version="1.2" href="drivers/tixds560icepick_d.xml" id="drivers" xml="tixds560icepick_d.xml" xmlpath="drivers"/>
+            <instance XML_version="1.2" href="drivers/tixds560cs_dap.xml" id="drivers" xml="tixds560cs_dap.xml" xmlpath="drivers"/>
+            <instance XML_version="1.2" href="drivers/tixds560cortexM.xml" id="drivers" xml="tixds560cortexM.xml" xmlpath="drivers"/>
+            <instance XML_version="1.2" href="drivers/tixds560cs_child.xml" id="drivers" xml="tixds560cs_child.xml" xmlpath="drivers"/>
+            <instance XML_version="1.2" href="drivers/tixds560cortexA.xml" id="drivers" xml="tixds560cortexA.xml" xmlpath="drivers"/>
+            <instance XML_version="1.2" href="drivers/tixds560csstm.xml" id="drivers" xml="tixds560csstm.xml" xmlpath="drivers"/>
+            <instance XML_version="1.2" href="drivers/tixds560etbcs.xml" id="drivers" xml="tixds560etbcs.xml" xmlpath="drivers"/>
+            <property Type="choicelist" Value="1" id="TCK loop-back"/>
+            <property Type="choicelist" Value="0" id="The TMS/TDO Output Timing"/>
+            <platform XML_version="1.2" id="platform_0">
+                <instance XML_version="1.2" desc="AM3352" href="devices/AM3352.xml" id="AM3352" xml="AM3352.xml" xmlpath="devices"/>
+            <device HW_revision="1" XML_version="1.2" description="AM33x - Cortex A8 Embedded Processor" id="AM3352" partnum="AM3352" simulation="no">
+                    <router HW_revision="1.0" XML_version="1.2" description="ICEPick_D Router" id="IcePick_D_0" isa="ICEPICK_D">
+                        <property Type="filepathfield" Value="../../gel_files/AM3352_icepick.gel" id="GEL File"/>
+                    <subpath id="subpath_12">
+                            <router HW_revision="1.0" XML_version="1.2" description="CS_DAP Router" id="CS_DAP_0" isa="CS_DAP">
+                                <subpath id="ModenaSS">
+                                    <cpu HW_revision="1.0" XML_version="1.2" description="Cortex_A8 CPU" id="CortexA8" isa="Cortex_A8">
+                                        <property Type="filepathfield" Value="../../gel_files/AM3352_SOM.gel" id="GEL File"/>
+                                    </cpu>
+                                </subpath>
+                            </router>
+                        </subpath>
+                    </router>
+                </device>
+            </platform>
+        </connection>
+    </configuration>
+</configurations>
