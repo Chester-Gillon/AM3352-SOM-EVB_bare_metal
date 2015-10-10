@@ -14,6 +14,7 @@
 #include <uartStdio.h>
 #include <mdio.h>
 #include <phy.h>
+#include <cpsw.h>
 
 #define LEN_MAC_ADDRESS 6
 
@@ -144,6 +145,56 @@ static void read_phy_status (phy_status_t phys_status[NUM_PHY_ADDRESSES])
     }
 }
 
+/**
+ * @brief Set the transfer mode of a CPSW port to match the link speed in the Ethernet phy
+ * @details To be called upon detecting a change in the link speed
+ */
+static void set_cpsw_transfer_mode (const unsigned int phy_address, const phy_status_t *const status)
+{
+    unsigned int base_address;
+
+    switch (phy_address)
+    {
+    case 0:
+        /* Phy address 0 is connected to CPSW port 1. Ethernet connected is LAN2 */
+        base_address = SOC_CPSW_SLIVER_1_REGS;
+        break;
+
+    case 1:
+        /* Phy address 1 is connected to CPSW port 2. Ethernet connected is LAN1 */
+        base_address = SOC_CPSW_SLIVER_2_REGS;
+        break;
+
+    default:
+        base_address = 0;
+        break;
+    }
+
+    if (base_address != 0)
+    {
+        switch (status->link_speed)
+        {
+        case LINK_SPEED_AUTO_NEGOTIATION_NOT_COMPLETE:
+        case LINK_SPEED_UNKNOWN:
+            /* @todo Should the CPSW port be disabled when the phy link is down? */
+            break;
+
+        case LINK_SPEED_1000M_HALF_DUPLEX:
+            /* @todo This link speed isn't supported by the CPSW */
+            break;
+
+        case LINK_SPEED_1000M_FULL_DUPLEX:
+        case LINK_SPEED_100M_FULL_DUPLEX:
+        case LINK_SPEED_100M_HALF_DUPLEX:
+        case LINK_SPEED_10M_FULL_DUPLEX:
+        case LINK_SPEED_10M_HALF_DUPLEX:
+            /* As the phys are using MII mode, there is no need to inform the CPSW of the actual link speed */
+            CPSWSlGMIIEnable (base_address);
+            break;
+        }
+    }
+}
+
 int main (void)
 {
     uint8_t port1_mac_addr[LEN_MAC_ADDRESS];
@@ -160,7 +211,17 @@ int main (void)
     UART_setup ();
     CPSWClkEnable ();
     CPSWPinMuxSetup ();
+    EVMPortGMIIModeSelect ();
+    CPSWSSReset (SOC_CPSW_SS_REGS);
+    CPSWCPDMAReset (SOC_CPSW_CPDMA_REGS);
+    CPSWWrReset (SOC_CPSW_WR_REGS);
     MDIOInit (SOC_CPSW_MDIO_REGS, MDIO_FREQ_INPUT, MDIO_FREQ_OUTPUT);
+    CPSWALEInit (SOC_CPSW_ALE_REGS);
+    CPSWALEPortStateSet (SOC_CPSW_ALE_REGS, 0, CPSW_ALE_PORT_STATE_FWD);
+    CPSWALEPortStateSet (SOC_CPSW_ALE_REGS, 1, CPSW_ALE_PORT_STATE_FWD);
+    CPSWALEPortStateSet (SOC_CPSW_ALE_REGS, 2, CPSW_ALE_PORT_STATE_FWD);
+    CPSWSlReset (SOC_CPSW_SLIVER_1_REGS);
+    CPSWSlReset (SOC_CPSW_SLIVER_2_REGS);
     EVMMACAddrGet (0, port1_mac_addr);
     EVMMACAddrGet (1, port2_mac_addr);
     UARTprintf ("Port 1 MAC address = %02X:%02X:%02X:%02X:%02X:%02X\n",
@@ -185,6 +246,11 @@ int main (void)
         read_phy_status (current_phys_status);
         for (phy_address = 0; phy_address < NUM_PHY_ADDRESSES; phy_address++)
         {
+            if (current_phys_status[phy_address].link_speed != previous_phys_status[phy_address].link_speed)
+            {
+                set_cpsw_transfer_mode (phy_address, &current_phys_status[phy_address]);
+            }
+
             if (memcmp (&current_phys_status[phy_address], &previous_phys_status[phy_address], sizeof (phy_status_t)) != 0)
             {
                 UARTprintf ("Phy %u link %s  link speed ", phy_address, current_phys_status[phy_address].link_status ? "Up  " : "Down");
