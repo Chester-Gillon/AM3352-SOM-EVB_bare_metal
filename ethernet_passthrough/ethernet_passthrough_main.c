@@ -17,6 +17,7 @@
 #include <phy.h>
 #include <cpsw.h>
 #include <rtc.h>
+#include <hw/hw_types.h>
 
 /* Copies of macros from drivers/rtc.c which are not part of the API */
 #define MASK_HOUR            (0xFF000000u)
@@ -326,14 +327,18 @@ static void read_phy_status (phy_status_t phys_status[NUM_PHY_ADDRESSES])
 }
 
 /**
- * @brief Set the transfer mode of a CPSW port to match the link speed in the Ethernet phy
- * @details To be called upon detecting a change in the link speed
+ * @brief Set the transfer mode of a CPSW port to match the link speed / duplex in the Ethernet phy
+ * @details To be called upon detecting a change in the link speed / duplex.
+ *          Since the Ethernet phys are using MII mode the actual link speed doesn't need to be set,
+ *          but the duplex is important to make sure the CPSW considers the transmission to be successful.
  * @param[in] phy_address Identifies the Ethernet phy
  * @param[in] status The status of the Ethernet phy
  */
 static void set_cpsw_transfer_mode (const unsigned int phy_address, const phy_status_t *const status)
 {
     unsigned int base_address;
+    unsigned int transfer_mode = 0;
+    bool enable = false;
 
     switch (phy_address)
     {
@@ -358,21 +363,36 @@ static void set_cpsw_transfer_mode (const unsigned int phy_address, const phy_st
         {
         case LINK_SPEED_AUTO_NEGOTIATION_NOT_COMPLETE:
         case LINK_SPEED_UNKNOWN:
-            /* @todo Should the CPSW port be disabled when the phy link is down? */
+            enable = false;
             break;
 
         case LINK_SPEED_1000M_HALF_DUPLEX:
-            /* @todo This link speed isn't supported by the CPSW */
+            /* This link speed isn't supported by the CPSW */
+            enable = false;
             break;
 
         case LINK_SPEED_1000M_FULL_DUPLEX:
         case LINK_SPEED_100M_FULL_DUPLEX:
-        case LINK_SPEED_100M_HALF_DUPLEX:
         case LINK_SPEED_10M_FULL_DUPLEX:
-        case LINK_SPEED_10M_HALF_DUPLEX:
-            /* As the phys are using MII mode, there is no need to inform the CPSW of the actual link speed */
-            CPSWSlGMIIEnable (base_address);
+            transfer_mode = CPSW_SL_MACCONTROL_FULLDUPLEX;
+            enable = true;
             break;
+
+        case LINK_SPEED_100M_HALF_DUPLEX:
+        case LINK_SPEED_10M_HALF_DUPLEX:
+            transfer_mode = 0;
+            enable = true;
+            break;
+        }
+
+        if (enable)
+        {
+            CPSWSlTransferModeSet (base_address, transfer_mode);
+            CPSWSlGMIIEnable (base_address);
+        }
+        else
+        {
+            HWREG(base_address + CPSW_SL_MACCONTROL) &= ~CPSW_SL_MACCONTROL_GMII_EN;
         }
     }
 }
