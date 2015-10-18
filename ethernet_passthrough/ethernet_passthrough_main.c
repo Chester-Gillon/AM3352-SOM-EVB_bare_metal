@@ -343,12 +343,12 @@ static void set_cpsw_transfer_mode (const unsigned int phy_address, const phy_st
     switch (phy_address)
     {
     case 0:
-        /* Phy address 0 is connected to CPSW port 1. Ethernet connected is LAN2 */
+        /* Phy address 0 is connected to CPSW port 1. Ethernet connector is labelled LAN2 */
         base_address = SOC_CPSW_SLIVER_1_REGS;
         break;
 
     case 1:
-        /* Phy address 1 is connected to CPSW port 2. Ethernet connected is LAN1 */
+        /* Phy address 1 is connected to CPSW port 2. Ethernet connector is labelled LAN1 */
         base_address = SOC_CPSW_SLIVER_2_REGS;
         break;
 
@@ -490,6 +490,43 @@ static void display_cpsw_statistics (const cpsw_statistics_t *const current_stat
 
 }
 
+/**
+ * @brief Dislay the status of one CPSW port.
+ * @param[in] port_id Identifies the CPSW port
+ * @param[in] link_speed The status for the CPSW port
+ */
+static void display_cpsw_link_status (const uint32_t port_id, phy_derived_link_speed link_speed)
+{
+    const char *link_status;
+
+    switch (link_speed)
+    {
+    case LINK_SPEED_1000M_FULL_DUPLEX:
+        link_status = "1000M Full";
+        break;
+    case LINK_SPEED_1000M_HALF_DUPLEX:
+        link_status = "1000M Half";
+        break;
+    case LINK_SPEED_100M_FULL_DUPLEX:
+        link_status = "100M Full";
+        break;
+    case LINK_SPEED_100M_HALF_DUPLEX:
+        link_status = "100M Half";
+        break;
+    case LINK_SPEED_10M_FULL_DUPLEX:
+        link_status = "10M Full";
+        break;
+    case LINK_SPEED_10M_HALF_DUPLEX:
+        link_status = "10M Half";
+        break;
+    default:
+        link_status = "Down";
+        break;
+    }
+
+    UARTprintf (" (Port %u %s)", port_id, link_status);
+}
+
 int main (void)
 {
     uint8_t port1_mac_addr[LEN_MAC_ADDRESS];
@@ -569,7 +606,7 @@ int main (void)
                     UARTprintf ("Unknown");
                     break;
                 case LINK_SPEED_1000M_FULL_DUPLEX:
-                    UARTprintf ("1000 Full");
+                    UARTprintf ("1000M Full");
                     break;
                 case LINK_SPEED_1000M_HALF_DUPLEX:
                     UARTprintf ("1000M Half");
@@ -600,7 +637,10 @@ int main (void)
             get_cpsw_statistics (&current_stats);
             UARTprintf ("\n");
             time_resolve (current_rtc_time);
-            UARTprintf (" CPSW Statistics for all ports:\n");
+            UARTprintf (" CPSW Statistics for all ports");
+            display_cpsw_link_status (1, current_phys_status[0].link_speed);
+            display_cpsw_link_status (2, current_phys_status[1].link_speed);
+            UARTprintf ("\n");
             display_cpsw_statistics (&current_stats, &previous_stats);
 
             previous_stats = current_stats;
