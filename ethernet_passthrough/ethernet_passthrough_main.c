@@ -249,80 +249,75 @@ static void time_resolve (unsigned int timeValue)
 }
 
 /**
- * @brief Read the status of all phys which are indicates as alive
+ * @brief Read the status an Ethernet phys
  * @todo Assumes that the Ethernet phy defaults to auto-negotiate at reset
- * @param[out] phys_status Where to store the status of the phys, indexed by the phy address
+ * @param[in] phy_address Address of the phy to read the status for
+ * @param[out] status Where to store the status of the phy
  */
-static void read_phy_status (phy_status_t phys_status[NUM_PHY_ADDRESSES])
+static void read_phy_status (const unsigned int phy_address, phy_status_t *const status)
 {
     const unsigned int phys_alive_status = MDIOPhyAliveStatusGet (SOC_CPSW_MDIO_REGS);
-    unsigned int phy_address;
     bool status_available;
 
-    for (phy_address = 0; phy_address < NUM_PHY_ADDRESSES; phy_address++)
+    status_available = (phys_alive_status & (1u << phy_address)) != 0u;
+    if (status_available)
     {
-        phy_status_t *const status = &phys_status[phy_address];
-
-        status_available = (phys_alive_status & (1u << phy_address)) != 0u;
+        status->link_status = PhyLinkStatusGet (SOC_CPSW_MDIO_REGS, phy_address, 0);
+        status_available = MDIOPhyRegRead (SOC_CPSW_MDIO_REGS, phy_address, PHY_BSR, &status->basic_status);
         if (status_available)
         {
-            status->link_status = PhyLinkStatusGet (SOC_CPSW_MDIO_REGS, phy_address, 0);
-            status_available = MDIOPhyRegRead (SOC_CPSW_MDIO_REGS, phy_address, PHY_BSR, &status->basic_status);
-            if (status_available)
-            {
-                /* Only attempt to read the gigabit parter ability if the phy supports Gigabit */
-                status->gpbs_partner_ability = (status->basic_status & BMSR_ESTATEN) != 0;
-                status_available = PhyPartnerAbilityGet (SOC_CPSW_MDIO_REGS, phy_address,
-                                                         &status->partner_ability, &status->gpbs_partner_ability);
-            }
+            /* Only attempt to read the gigabit parter ability if the phy supports Gigabit */
+            status->gpbs_partner_ability = (status->basic_status & BMSR_ESTATEN) != 0;
+            status_available = PhyPartnerAbilityGet (SOC_CPSW_MDIO_REGS, phy_address,
+                                                     &status->partner_ability, &status->gpbs_partner_ability);
         }
+    }
 
-        if (status_available)
+    if (status_available)
+    {
+        /* Determine the link speed of the phy */
+        if ((status->basic_status & PHY_AUTONEG_COMPLETE) != 0)
         {
-            /* Determine the link speed of the phy */
-            if ((status->basic_status & PHY_AUTONEG_COMPLETE) != 0)
+            if ((status->gpbs_partner_ability & PHY_LINK_PARTNER_1000BT_FD) != 0)
             {
-                if ((status->gpbs_partner_ability & PHY_LINK_PARTNER_1000BT_FD) != 0)
-                {
-                    status->link_speed = LINK_SPEED_1000M_FULL_DUPLEX;
-                }
-                else if ((status->gpbs_partner_ability & PHY_LINK_PARTNER_1000BT_HD) != 0)
-                {
-                    status->link_speed = LINK_SPEED_1000M_HALF_DUPLEX;
-                }
-                else if ((status->partner_ability & PHY_100BTX_FD) != 0)
-                {
-                    status->link_speed = LINK_SPEED_100M_FULL_DUPLEX;
-                }
-                else if ((status->partner_ability & PHY_100BTX) != 0)
-                {
-                    status->link_speed = LINK_SPEED_100M_HALF_DUPLEX;
-                }
-                else if ((status->partner_ability & PHY_10BT_FD) != 0)
-                {
-                    status->link_speed = LINK_SPEED_10M_FULL_DUPLEX;
-                }
-                else if ((status->partner_ability & PHY_10BT) != 0)
-                {
-                    status->link_speed = LINK_SPEED_10M_HALF_DUPLEX;
-                }
-                else
-                {
-                    status->link_speed = LINK_SPEED_UNKNOWN;
-                }
+                status->link_speed = LINK_SPEED_1000M_FULL_DUPLEX;
+            }
+            else if ((status->gpbs_partner_ability & PHY_LINK_PARTNER_1000BT_HD) != 0)
+            {
+                status->link_speed = LINK_SPEED_1000M_HALF_DUPLEX;
+            }
+            else if ((status->partner_ability & PHY_100BTX_FD) != 0)
+            {
+                status->link_speed = LINK_SPEED_100M_FULL_DUPLEX;
+            }
+            else if ((status->partner_ability & PHY_100BTX) != 0)
+            {
+                status->link_speed = LINK_SPEED_100M_HALF_DUPLEX;
+            }
+            else if ((status->partner_ability & PHY_10BT_FD) != 0)
+            {
+                status->link_speed = LINK_SPEED_10M_FULL_DUPLEX;
+            }
+            else if ((status->partner_ability & PHY_10BT) != 0)
+            {
+                status->link_speed = LINK_SPEED_10M_HALF_DUPLEX;
             }
             else
             {
-                status->link_speed = LINK_SPEED_AUTO_NEGOTIATION_NOT_COMPLETE;
+                status->link_speed = LINK_SPEED_UNKNOWN;
             }
         }
         else
         {
-            status->link_status = false;
-            status->partner_ability = 0;
-            status->gpbs_partner_ability = 0;
             status->link_speed = LINK_SPEED_AUTO_NEGOTIATION_NOT_COMPLETE;
         }
+    }
+    else
+    {
+        status->link_status = false;
+        status->partner_ability = 0;
+        status->gpbs_partner_ability = 0;
+        status->link_speed = LINK_SPEED_AUTO_NEGOTIATION_NOT_COMPLETE;
     }
 }
 
@@ -527,6 +522,69 @@ static void display_cpsw_link_status (const uint32_t port_id, phy_derived_link_s
     UARTprintf (" (Port %u %s)", port_id, link_status);
 }
 
+/**
+ * @brief Poll for an Ethernet phy link status change by checking for a Link Change Interrupt
+ * @todo The Link Change Interrupt monitors changes in the Link Status bit. For this function to detect changes
+ *       in link speed or duplex assumes that the Link Status will report the Link Status as Down then Up during
+ *       a change of link speed or duplex.
+ * @param[in] phy_address Identifies the Ethernet phy
+ * @param[in,out] current_status The most current status, updated after a Link Change Interrupt
+ * @param[in,out] current_status The previous status, updated after a Link Change Interrupt
+ */
+static void poll_for_phy_link_status_change (const unsigned int phy_address,
+                                             phy_status_t *const current_status, phy_status_t *const previous_status)
+{
+    const uint32_t link_int_mask = (phy_address == 0) ? MDIO_LINKINTMASKED_USERPHY0 : MDIO_LINKINTMASKED_USERPHY1;
+
+    if ((HWREG (SOC_CPSW_MDIO_REGS + MDIO_LINKINTMASKED) & link_int_mask) != 0)
+    {
+        /* Clear interrupt */
+        HWREG (SOC_CPSW_MDIO_REGS + MDIO_LINKINTMASKED) = link_int_mask;
+
+        /* Read current status */
+        read_phy_status (phy_address, current_status);
+        if (current_status->link_speed != previous_status->link_speed)
+        {
+            set_cpsw_transfer_mode (phy_address, current_status);
+        }
+
+        if (memcmp (current_status, previous_status, sizeof (phy_status_t)) != 0)
+        {
+            UARTprintf ("Phy %u link %s  link speed ", phy_address, current_status->link_status ? "Up  " : "Down");
+            switch (current_status->link_speed)
+            {
+            case LINK_SPEED_AUTO_NEGOTIATION_NOT_COMPLETE:
+                UARTprintf ("Auto negotiation not complete");
+                break;
+            case LINK_SPEED_UNKNOWN:
+                UARTprintf ("Unknown");
+                break;
+            case LINK_SPEED_1000M_FULL_DUPLEX:
+                UARTprintf ("1000M Full");
+                break;
+            case LINK_SPEED_1000M_HALF_DUPLEX:
+                UARTprintf ("1000M Half");
+                break;
+            case LINK_SPEED_100M_FULL_DUPLEX:
+                UARTprintf ("100M Full");
+                break;
+            case LINK_SPEED_100M_HALF_DUPLEX:
+                UARTprintf ("100M Half");
+                break;
+            case LINK_SPEED_10M_FULL_DUPLEX:
+                UARTprintf ("10M Full");
+                break;
+            case LINK_SPEED_10M_HALF_DUPLEX:
+                UARTprintf ("10M Half");
+                break;
+            }
+            UARTprintf ("\n");
+        }
+
+        *previous_status = *current_status;
+    }
+}
+
 int main (void)
 {
     uint8_t port1_mac_addr[LEN_MAC_ADDRESS];
@@ -556,6 +614,8 @@ int main (void)
     CPSWCPDMAReset (SOC_CPSW_CPDMA_REGS);
     CPSWWrReset (SOC_CPSW_WR_REGS);
     MDIOInit (SOC_CPSW_MDIO_REGS, MDIO_FREQ_INPUT, MDIO_FREQ_OUTPUT);
+    HWREG (SOC_CPSW_MDIO_REGS + MDIO_USERPHYSEL0) = MDIO_USERPHYSEL0_LINKINTENB | (0 << MDIO_USERPHYSEL0_PHYADRMON_SHIFT);
+    HWREG (SOC_CPSW_MDIO_REGS + MDIO_USERPHYSEL1) = MDIO_USERPHYSEL1_LINKINTENB | (1 << MDIO_USERPHYSEL1_PHYADRMON_SHIFT);
     CPSWALEInit (SOC_CPSW_ALE_REGS);
     CPSWALEPortStateSet (SOC_CPSW_ALE_REGS, 0, CPSW_ALE_PORT_STATE_FWD);
     CPSWALEPortStateSet (SOC_CPSW_ALE_REGS, 1, CPSW_ALE_PORT_STATE_FWD);
@@ -582,52 +642,13 @@ int main (void)
 
     seconds_of_last_statistics = get_rtc_seconds (RTCTimeGet (SOC_RTC_0_REGS));
 
-    read_phy_status (current_phys_status);
+    read_phy_status (0, &current_phys_status[0]);
+    read_phy_status (1, &current_phys_status[1]);
     for (;;)
     {
         /* Poll for changes in the status of the Ethernet phys */
-        read_phy_status (current_phys_status);
-        for (phy_address = 0; phy_address < NUM_PHY_ADDRESSES; phy_address++)
-        {
-            if (current_phys_status[phy_address].link_speed != previous_phys_status[phy_address].link_speed)
-            {
-                set_cpsw_transfer_mode (phy_address, &current_phys_status[phy_address]);
-            }
-
-            if (memcmp (&current_phys_status[phy_address], &previous_phys_status[phy_address], sizeof (phy_status_t)) != 0)
-            {
-                UARTprintf ("Phy %u link %s  link speed ", phy_address, current_phys_status[phy_address].link_status ? "Up  " : "Down");
-                switch (current_phys_status[phy_address].link_speed)
-                {
-                case LINK_SPEED_AUTO_NEGOTIATION_NOT_COMPLETE:
-                    UARTprintf ("Auto negotiation not complete");
-                    break;
-                case LINK_SPEED_UNKNOWN:
-                    UARTprintf ("Unknown");
-                    break;
-                case LINK_SPEED_1000M_FULL_DUPLEX:
-                    UARTprintf ("1000M Full");
-                    break;
-                case LINK_SPEED_1000M_HALF_DUPLEX:
-                    UARTprintf ("1000M Half");
-                    break;
-                case LINK_SPEED_100M_FULL_DUPLEX:
-                    UARTprintf ("100M Full");
-                    break;
-                case LINK_SPEED_100M_HALF_DUPLEX:
-                    UARTprintf ("100M Half");
-                    break;
-                case LINK_SPEED_10M_FULL_DUPLEX:
-                    UARTprintf ("10M Full");
-                    break;
-                case LINK_SPEED_10M_HALF_DUPLEX:
-                    UARTprintf ("10M Half");
-                    break;
-                }
-                UARTprintf ("\n");
-            }
-        }
-        memcpy (previous_phys_status, current_phys_status, sizeof (previous_phys_status));
+        poll_for_phy_link_status_change (0, &current_phys_status[0], &previous_phys_status[0]);
+        poll_for_phy_link_status_change (1, &current_phys_status[1], &previous_phys_status[1]);
 
         /* Report CPSW statistics every 10 seconds */
         current_rtc_time = RTCTimeGet (SOC_RTC_0_REGS);
