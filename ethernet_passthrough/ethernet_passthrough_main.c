@@ -592,6 +592,7 @@ int main (void)
     unsigned int phys_alive_status;
     unsigned int phy_address;
     unsigned int phy_id;
+    unsigned short phy_special_modes;
     phy_status_t current_phys_status[NUM_PHY_ADDRESSES];
     phy_status_t previous_phys_status[NUM_PHY_ADDRESSES];
     cpsw_statistics_t current_stats;
@@ -616,10 +617,21 @@ int main (void)
     MDIOInit (SOC_CPSW_MDIO_REGS, MDIO_FREQ_INPUT, MDIO_FREQ_OUTPUT);
     HWREG (SOC_CPSW_MDIO_REGS + MDIO_USERPHYSEL0) = MDIO_USERPHYSEL0_LINKINTENB | (0 << MDIO_USERPHYSEL0_PHYADRMON_SHIFT);
     HWREG (SOC_CPSW_MDIO_REGS + MDIO_USERPHYSEL1) = MDIO_USERPHYSEL1_LINKINTENB | (1 << MDIO_USERPHYSEL1_PHYADRMON_SHIFT);
-    CPSWALEInit (SOC_CPSW_ALE_REGS);
-    CPSWALEPortStateSet (SOC_CPSW_ALE_REGS, 0, CPSW_ALE_PORT_STATE_FWD);
-    CPSWALEPortStateSet (SOC_CPSW_ALE_REGS, 1, CPSW_ALE_PORT_STATE_FWD);
-    CPSWALEPortStateSet (SOC_CPSW_ALE_REGS, 2, CPSW_ALE_PORT_STATE_FWD);
+
+    /* Set the CPSW ALE to:
+     * - Pass packets between external port 1 and 2
+     * - Flood all packets to the host port 0. This is done by enabling the flooding of unknown unicast packets
+     *   and by disabling of learning (so that all unicast packets remain unknown). broadcast and multicast
+     *   packets will be flooded anyway.
+     *
+     *   @todo As this program doesn't yet read packets from host port 0, the "RX start of frame overruns"
+     *         statistic will increment for every received frame.
+     */
+    HWREG (SOC_CPSW_ALE_REGS + CPSW_ALE_CONTROL) = CPSW_ALE_CONTROL_CLEAR_TABLE | CPSW_ALE_CONTROL_EN_P0_UNI_FLOOD | CPSW_ALE_CONTROL_ENABLE_ALE;
+    HWREG (SOC_CPSW_ALE_REGS + CPSW_ALE_PORTCTL(0)) = CPSW_ALE_PORT_STATE_FWD | CPSW_ALE_PORTCTL0_NO_LEARN;
+    HWREG (SOC_CPSW_ALE_REGS + CPSW_ALE_PORTCTL(1)) = CPSW_ALE_PORT_STATE_FWD | CPSW_ALE_PORTCTL1_NO_LEARN;
+    HWREG (SOC_CPSW_ALE_REGS + CPSW_ALE_PORTCTL(2)) = CPSW_ALE_PORT_STATE_FWD | CPSW_ALE_PORTCTL2_NO_LEARN;
+
     CPSWStatisticsEnable (SOC_CPSW_SS_REGS);
     CPSWSlReset (SOC_CPSW_SLIVER_1_REGS);
     CPSWSlReset (SOC_CPSW_SLIVER_2_REGS);
@@ -636,7 +648,8 @@ int main (void)
         if ((phys_alive_status & (1u << phy_address)) != 0u)
         {
             phy_id = PhyIDGet (SOC_CPSW_MDIO_REGS, phy_address);
-            UARTprintf ("Phy %u ID = 0x%x\n", phy_address, phy_id);
+            (void) PhyRegRead (SOC_CPSW_MDIO_REGS, phy_address, 18, &phy_special_modes);
+            UARTprintf ("Phy %u ID = 0x%x  Special Modes = 0x%x\n", phy_address, phy_id, phy_special_modes);
         }
     }
 
