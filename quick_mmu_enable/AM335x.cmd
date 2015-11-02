@@ -24,8 +24,8 @@
 
 MEMORY
 {
-        /* Only use the 64kB internal SRAM */
-        IRAM_MEM        : org = 0x402F0400  len = 0x0FC00            /* RAM */
+        /* Only use the 64kB L3 OCMC SRAM */
+        IRAM_MEM        : org = 0x40300000  len = 0x00010000            /* RAM */
 }
 
 /* SPECIFY THE SECTIONS ALLOCATION INTO MEMORY */

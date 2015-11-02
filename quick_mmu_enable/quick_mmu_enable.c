@@ -19,7 +19,7 @@
 
 /* The MMU regions used */
 #define START_ADDR_DEV             (0x44000000)
-#define START_ADDR_IRAM            (0x40200000)
+#define START_ADDR_IRAM            (0x40300000)
 #define NUM_SECTIONS_DEV           (960)
 #define NUM_SECTIONS_IRAM          (1)
 
