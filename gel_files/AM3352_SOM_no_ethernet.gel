@@ -1,0 +1,14 @@
+// @file AM3352_SOM_no_ethernet.gel
+// @date 2 Nov 2015
+// @author Chester Gillon
+// @brief GEL file for the Cortex-A8 on the AM3352 SOM for a program which doesn't use the Ethernet
+// @details Configures the clocks, DDR3 and Cortex-A8 state to allow a program downloaded into either the on-chip RAM or DDR3 by CCS to run
+
+/**
+ * @brief Load the other GEL files which perform the work
+ */
+StartUp ()
+{
+    GEL_LoadGel ("$(GEL_file_dir)/CortexA8_ETB_trigger.gel");
+    GEL_LoadGel ("$(GEL_file_dir)/AM3352_SOM.gel");
+}

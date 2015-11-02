@@ -1,0 +1,39 @@
+// @file AM3352_SOM_ethernet.gel
+// @date 2 Nov 2015
+// @author Chester Gillon
+// @brief GEL file for the Cortex-A8 on the AM3352 SOM for a program which uses the Ethernet
+// @details Performs the configuration steps in AM3352_SOM_no_ethernet.gel, and additionally ensures that the LAN8710A Ethernet phys
+//          are configured correctly.
+//
+//          The nRST pin on the LAN8710A Ethernet phys is connected to the nRESETIN_OUT pin on the AM3352.
+//          When a system reset is generated on the AM3352, to reset the AM3352 to a known state before loading a program,
+//          the nRESETIN_OUT generates a reset pulse of approx 1 microsecond.
+//          Whereas the minimum valid reset pulse for the LAN8710A Ethernet phys is 100 microseconds.
+//          The short duration reset from the AM3352 can sometimes cause the LAN8710A Ethernet phys to use an incorrect
+//          address and/or mode settings (where the address and mode to used as set by pin strapping options loaded during reset).
+//
+//          To work-around the system reset sometimes causing the LAN8710A Ethernet phys to be incorrectly configured,
+//          this GEL script causes the system reset to be repeated until both LAN8710A Ethernet phys have loaded the correct configuration.
+//          This involves enabling the MDIO pins on the AM3352 and using MDIO to communicate with the LAN8710A Ethernet phys
+//          before the program is loaded. The MDIO interface is left active.
+
+/**
+ * @brief Load the other GEL files which perform the work
+ */
+StartUp ()
+{
+    GEL_LoadGel ("$(GEL_file_dir)/CortexA8_ETB_trigger.gel");
+    GEL_LoadGel ("$(GEL_file_dir)/AM3352_SOM.gel");
+    GEL_LoadGel ("$(GEL_file_dir)/LAN8710A_configuration.gel");
+}
+
+/**
+ * @brief Prior to loading the program into the Cortex-A8, wait until the LAN8710A Ethernet phys are configured correctly.
+ * @details This may cause zero or more additional system resets to correctly configure the LAN8710A Ethernet phys,
+ *          resulting in multiple reports of the GEL configuration in the Console and the CCS download of the program
+ *          being blocked until the LAN8710A Ethernet phys are configured correctly.
+ */
+OnPreFileLoaded ()
+{
+    GEL_EvalOnTarget ("IcePick_D_0", "reset_if_lan8710_configuration_incorrect()");
+}

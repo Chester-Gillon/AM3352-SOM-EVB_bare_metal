@@ -1,0 +1,183 @@
+// @file LAN8710A_configuration.gel
+// @date 2 Nov 2015
+// @author Chester Gillon
+// @details Contains function to check if the LAN8710A Ethernet phys have been configured with the correct
+//          settings for the AM3352 SOM.
+
+#define SOC_PRCM_REGS                        (0x44E00000)
+#define SOC_CPSW_MDIO_REGS                   (0x4A101000)
+
+/* CPGMAC0_CLKCTRL */
+#define CM_PER_CPGMAC0_CLKCTRL_IDLEST   (0x00030000u)
+#define CM_PER_CPGMAC0_CLKCTRL   (0x14)
+#define CM_PER_CPGMAC0_CLKCTRL_MODULEMODE_ENABLE   (0x2u)
+
+/* MDIO registers */
+#define MDIO_CONTROL        (0x4)
+#define MDIO_CONTROL_ENABLE (0x40000000u)
+#define MDIO_CONTROL_PREAMBLE (0x00100000u)
+#define MDIO_CONTROL_FAULTENB (0x00040000u)
+
+#define MDIO_CONTROL_CLKDIV (0x0000FFFFu)
+
+#define MDIO_ALIVE      (0x8)
+
+#define MDIO_USERACCESS0    (0x80)
+
+#define MDIO_USERACCESS0_GO (0x80000000u)
+#define MDIO_USERACCESS0_READ  (0x00000000u)
+#define MDIO_USERACCESS0_ACK (0x20000000u)
+
+#define PHY_REG_MASK                             (0x1Fu)
+#define PHY_ADDR_MASK                            (0x1Fu)
+#define PHY_DATA_MASK                            (0xFFFFu)
+#define PHY_REG_SHIFT                            (21u)
+#define PHY_ADDR_SHIFT                           (16u)
+
+/* MDIO input and output frequencies in Hz */
+#define MDIO_FREQ_INPUT                          125000000
+#define MDIO_FREQ_OUTPUT                         1000000
+
+/* Pin muxing */
+#define SOC_CONTROL_REGS                     (0x44E10000)
+#define CONTROL_CONF_MDIO_DATA   (0x948)
+#define CONTROL_CONF_MDIO_CLK   (0x94c)
+#define CONTROL_CONF_MDIO_DATA_CONF_MDIO_DATA_RXACTIVE   (0x00000020u)
+#define CONTROL_CONF_MDIO_DATA_CONF_MDIO_DATA_PUTYPESEL   (0x00000010u)
+#define CONTROL_CONF_MDIO_CLK_CONF_MDIO_CLK_PUTYPESEL   (0x00000010u)
+#define CPSW_MDIO_SEL_MODE                    (0x00u)
+
+/*
+ * @brief Enables CPSW clocks
+ */
+CPSWClkEnable ()
+{
+    WR_MEM_32 (SOC_PRCM_REGS + CM_PER_CPGMAC0_CLKCTRL, CM_PER_CPGMAC0_CLKCTRL_MODULEMODE_ENABLE);
+    
+    while ((RD_MEM_32(SOC_PRCM_REGS + CM_PER_CPGMAC0_CLKCTRL) & CM_PER_CPGMAC0_CLKCTRL_IDLEST) != 0)
+    {
+    }
+}
+
+
+/**
+ * @brief   Initializes the MDIO peripheral. This enables the MDIO state
+ *          machine, uses standard pre-amble and set the clock divider value.
+ *
+ * @param   baseAddr       Base Address of the MDIO Module Registers.
+ * @param   mdioInputFreq  The clock input to the MDIO module
+ * @param   mdioOutputFreq The clock output required on the MDIO bus
+ *
+ **/
+MDIOInit(UWORD32 baseAddr, UWORD32 mdioInputFreq, UWORD32 mdioOutputFreq)
+{
+    UWORD32 clkDiv = (mdioInputFreq/mdioOutputFreq) - 1;
+
+    WR_MEM_32(baseAddr + MDIO_CONTROL, (clkDiv & MDIO_CONTROL_CLKDIV)
+                                      | MDIO_CONTROL_ENABLE 
+                                      | MDIO_CONTROL_PREAMBLE
+                                      | MDIO_CONTROL_FAULTENB);
+}
+/**
+ * @brief   Reads the alive status of all PHY connected to this MDIO.
+ *          The bit correponding to the PHY address will be set if the PHY
+ *          is alive.
+ *
+ * @param   baseAddr      Base Address of the MDIO Module Registers.
+ *
+ * @return  MDIO alive register state
+ *
+ **/
+MDIOPhyAliveStatusGet(UWORD32 baseAddr)
+{
+    return (RD_MEM_32(baseAddr + MDIO_ALIVE));
+}
+
+/**
+ * @brief Sets up the pin muxing for the MDIO, shared by both Ethernet phys
+ */
+MDIOPinMuxSetup()
+{
+    WR_MEM_32(SOC_CONTROL_REGS + CONTROL_CONF_MDIO_DATA,
+                      CONTROL_CONF_MDIO_DATA_CONF_MDIO_DATA_RXACTIVE 
+                      | CONTROL_CONF_MDIO_DATA_CONF_MDIO_DATA_PUTYPESEL
+                      | CPSW_MDIO_SEL_MODE);
+    WR_MEM_32(SOC_CONTROL_REGS + CONTROL_CONF_MDIO_CLK,
+                      CONTROL_CONF_MDIO_CLK_CONF_MDIO_CLK_PUTYPESEL
+                      | CPSW_MDIO_SEL_MODE);
+}
+
+
+/**
+ * @brief   Reads a PHY register using MDIO.
+ *
+ * @param   baseAddr      Base Address of the MDIO Module Registers.
+ * @param   phyAddr       PHY Adress.
+ * @param   regNum        Register Number to be read.
+ *
+ * @return  status of the read:
+ *          - -1 if the read is not acknowledged properly
+ *          - >=0 the PHY register value
+ *
+ **/
+MDIOPhyRegRead(UWORD32 baseAddr, UWORD32 phyAddr, UWORD32 regNum)
+{
+    /* Wait till transaction completion if any */
+    while(RD_MEM_32(baseAddr + MDIO_USERACCESS0) & MDIO_USERACCESS0_GO)
+    {
+    }
+
+    WR_MEM_32(baseAddr + MDIO_USERACCESS0,
+                           (MDIO_USERACCESS0_READ | MDIO_USERACCESS0_GO
+                              |((regNum & PHY_REG_MASK) << PHY_REG_SHIFT)
+                              |((phyAddr & PHY_ADDR_MASK) << PHY_ADDR_SHIFT)));
+
+    /* wait for command completion */
+    while(RD_MEM_32(baseAddr + MDIO_USERACCESS0) & MDIO_USERACCESS0_GO)
+    {
+    }
+
+    /* Store the data if the read is acknowledged */
+    if((RD_MEM_32(baseAddr + MDIO_USERACCESS0)) & MDIO_USERACCESS0_ACK)
+    {
+        return RD_MEM_32 (baseAddr + MDIO_USERACCESS0) & PHY_DATA_MASK;
+    }
+
+    return -1;
+}
+
+/**
+ * @details Check if both LAN8710A Ethernet phys on the AM3352 SOM have had their correct strap options
+ *          loaded following a reset.
+ * @return Returns 1 of both LAN8710A have the correct options, or 0 otherwise
+ */
+check_lan8710a_configuration ()
+{
+    UWORD32 phys_alive;
+    int phy_addr0_special_modes;
+    int phy_addr1_special_modes;
+    UWORD32 phy_configuration_correct;
+    
+    CPSWClkEnable ();
+    MDIOPinMuxSetup ();
+    MDIOInit (SOC_CPSW_MDIO_REGS, MDIO_FREQ_INPUT, MDIO_FREQ_OUTPUT);
+ 
+    /* Check that the LAN8710A Ethernet phys are using the expected address of 0 and 1. */
+    phys_alive = MDIOPhyAliveStatusGet (SOC_CPSW_MDIO_REGS);
+    phy_configuration_correct = phys_alive == 0x3;
+    GEL_TextOut ("Phys alive = %x\n", "", 1, 1, 1, phys_alive);
+    
+    if (phy_configuration_correct)
+    {
+        /* Check that the LAN8710A Ethernet phys are using the expected MIIMODE and MODE options by reading the Special Mode Register */
+        phy_addr0_special_modes = MDIOPhyRegRead (SOC_CPSW_MDIO_REGS, 0, 18);
+        phy_addr1_special_modes = MDIOPhyRegRead (SOC_CPSW_MDIO_REGS, 1, 18);
+        GEL_TextOut ("Phy address 0 Special Modes = %x\n", "", 1, 1, 1, phy_addr0_special_modes);
+        GEL_TextOut ("Phy address 1 Special Modes = %x\n", "", 1, 1, 1, phy_addr1_special_modes);
+        
+        phy_configuration_correct = (phy_addr0_special_modes == 0xe0) && (phy_addr1_special_modes == 0xe1);
+    }
+    
+    return phy_configuration_correct;
+}
+

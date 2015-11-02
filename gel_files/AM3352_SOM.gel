@@ -13,6 +13,9 @@
 //   The GEL file is a modified copy of the beagleboneblack.gel from CCS 6.1, since the BeagleBoneBlack is the closest
 //   match to the AM3352 SOM. Uncessary options were removed.
 //
+//   This GEL file is loaded by either AM3352_SOM_no_ethernet.gel or AM3352_SOM_ethernet.gel, rather than being referenced
+//   in a target configuration file.
+//
 //   The DDR3 configuration was set by:
 //   - ALLOPP_DDR3_SDRAM_TIMING1, ALLOPP_DDR3_SDRAM_TIMING2 and ALLOPP_DDR3_SDRAM_TIMING3 were computed from the
 //     AM335x DDR Calculation tool downloaded from http://processors.wiki.ti.com/index.php/AM335x_EMIF_Configuration_tips
@@ -290,11 +293,6 @@
 //Global variables
 //*****************************************************************************
 UWORD32 CLKIN;
-
-StartUp ()
-{
-	GEL_LoadGel ("$(GEL_file_dir)/CortexA8_ETB_trigger.gel");
-}
 
 //Watchdog is disabled to eliminate warm resets during debug
 Disable_Watchdog()

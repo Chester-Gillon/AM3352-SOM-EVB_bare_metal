@@ -17,3 +17,18 @@ OnTargetConnect ()
     /* Cause the IcePick to assert a System Reset */
     GEL_Reset ();
 }
+
+/**
+ * @brief Called from AM3352_SOM_ethernet.gel to wait for the LAN8710A Ethernet phys to be configured correctly
+ * @details If the LAN8710A Ethernet phys are not configured correctly, peforms another system reset and then checks again
+ */
+reset_if_lan8710_configuration_incorrect ()
+{
+    while (!GEL_EvalOnTarget ("CortxA8", "check_lan8710a_configuration()"))
+    {
+        GEL_EvalOnTarget ("CortxA8", "GEL_Disconnect()");
+        GEL_EvalOnTarget ("CortxA8", "GEL_SetWaitInResetMode(1)");
+        GEL_Reset ();
+        GEL_EvalOnTarget ("CortxA8", "GEL_Connect()");
+    }
+}
