@@ -24,8 +24,10 @@
 
 MEMORY
 {
-        /* Only use the 64kB L3 OCMC SRAM */
-        IRAM_MEM        : org = 0x40300000  len = 0x00010000            /* RAM */
+        /* Lower part of 64kB L3 OCMC SRAM, excluding boot ROM Public Memory Map.
+           This is to allow the boot ROM tracing vectors to be examined after
+           load of this program. */
+        IRAM_MEM        : org = 0x40300000  len = 0x0000B800
 }
 
 /* SPECIFY THE SECTIONS ALLOCATION INTO MEMORY */
