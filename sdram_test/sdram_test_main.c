@@ -19,6 +19,7 @@
 #include <mmu.h>
 
 /* The total SDRAM size which is tested */
+#define SDRAM_BASE_ADDR 0x80000000
 #define SDRAM_SIZE_BYTES (512 * 1024 * 1024)
 #define SDRAM_SIZE_WORDS (SDRAM_SIZE_BYTES / sizeof (uint32_t))
 
@@ -290,11 +291,11 @@ static void mmu_and_cache_on_delay (void)
 
 int main (void)
 {
-    uint32_t *const sdram_base = (uint32_t *) 0x80000000;
+    uint32_t *const sdram_base = (uint32_t *) SDRAM_BASE_ADDR;
     uint32_t index;
     uint32_t num_errors;
     uint32_t offset;
-    unsigned int write_duration, read_duration;
+    unsigned int write_duration, clean_and_invalidate_duration, read_duration;
 
     enable_cycle_count ();
     mmu_and_cache_off_delay ();
@@ -319,6 +320,11 @@ int main (void)
         }
         write_duration = SysPerfTimerConfig (0);
 
+        /* Ensure all the test pattern is cleaned and invalidated from cache, so that the read is forced to be from the SDRAM */
+        (void) SysPerfTimerConfig (1);
+        CacheDataCleanInvalidateBuff (SDRAM_BASE_ADDR, SDRAM_SIZE_BYTES);
+        clean_and_invalidate_duration = SysPerfTimerConfig (0);
+
         (void) SysPerfTimerConfig (1);
         for (index = 0; index < SDRAM_SIZE_WORDS; index++)
         {
@@ -330,13 +336,15 @@ int main (void)
         read_duration = SysPerfTimerConfig (0);
 
         time_resolve (RTCTimeGet (SOC_RTC_0_REGS));
-        UARTprintf ("Write duration = %u  Read duration = %u\n", write_duration, read_duration);
+        UARTprintf ("Write duration = %u  Clean and invalidate duration = %u  Read duration = %u\n",
+                    write_duration, clean_and_invalidate_duration, read_duration);
         UARTprintf ("After index write num_errors=%u\n", num_errors);
 
         for (index = 0; index < SDRAM_SIZE_WORDS; index++)
         {
             sdram_base[index] = ~(index + offset);
         }
+        CacheDataCleanInvalidateBuff (SDRAM_BASE_ADDR, SDRAM_SIZE_BYTES);
         for (index = 0; index < SDRAM_SIZE_WORDS; index++)
         {
             if (sdram_base[index] != ~(index + offset))
