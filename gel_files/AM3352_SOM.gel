@@ -33,7 +33,9 @@
 #define PRCM_BASE_ADDR                    (0x44E00000)
 #define CM_PER_EMIF_CLKCTRL               (PRCM_BASE_ADDR + 0x028)
 #define CM_PER_OCMCRAM_CLKCTRL            (PRCM_BASE_ADDR + 0x02C)
+#define CM_PER_TIMER2_CLKCTRL             (PRCM_BASE_ADDR + 0x080)
 #define CM_PER_EMIF_FW_CLKCTRL            (PRCM_BASE_ADDR + 0x0D0)
+#define CM_PER_CLKDIV32K_CLKCTRL          (PRCM_BASE_ADDR + 0x14C)
 
 #define CM_WKUP_CLKSTCTRL                 (PRCM_BASE_ADDR + 0x400)
 #define CM_WKUP_GPIO0_CLKCTRL             (PRCM_BASE_ADDR + 0x408)
@@ -68,6 +70,12 @@
 #define CM_DIV_M6_DPLL_CORE               (PRCM_BASE_ADDR + 0x4D8)
 
 #define CM_CLKOUT_CTRL                    (PRCM_BASE_ADDR + 0x700)
+
+//****************************************************
+//Clock Module PLL module definitions
+//****************************************************
+#define CM_DPLL_BASE_ADDR                  0x44E00500
+#define CLKSEL_TIMER2_CLK                 (CM_DPLL_BASE_ADDR + 0x8)
 
 //****************************************************
 //Control module definitions
@@ -368,6 +376,7 @@ AM3352_SOM_Initialization()
     GEL_TextOut("****  AM3352_SOM Initialization is in progress .......... \n","Output",1,1,1);    
     ARM_Turbo_Config();
     OCMCRAM_Config();
+    DMTIMER_Config();
     DDR3_EMIF_Config();
     GEL_TextOut("****  AM3352_SOM Initialization is Done ****************** \n\n\n","Output",1,1,1);   
 }
@@ -605,6 +614,16 @@ DISP_PLL_Config(UWORD32 CLKIN,UWORD32 N,UWORD32 M,UWORD32 M2)
 OCMCRAM_Config ()
 {
     WR_MEM_32(CM_PER_OCMCRAM_CLKCTRL, 0x2);
+}
+
+/* Enable clocks for DMTIMER2 to count at 32KHz, which is the expected condiguratiuon by SYS/BIOS.
+ * This is necessary if wait-in-reset is active, which means that the boot ROM won't run to perform clock configuration.
+ */
+DMTIMER_Config ()
+{
+    WR_MEM_32(CM_PER_CLKDIV32K_CLKCTRL, 0x2);
+    WR_MEM_32(CM_PER_TIMER2_CLKCTRL, 0x2);
+    WR_MEM_32(CLKSEL_TIMER2_CLK, 0x2); /* Select CLK_32KHZ clock */
 }
 
 //##############################################################################
