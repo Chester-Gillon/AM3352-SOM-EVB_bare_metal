@@ -8,6 +8,7 @@
  */
 
 #include <stdint.h>
+#include <string.h>
 
 #include <hw/hw_types.h>
 #include <hw/soc_AM335x.h>
@@ -24,8 +25,20 @@
 #define NUM_SECTIONS_IRAM          (1)
 
 /* page tables start must be aligned in 16K boundary */
-#pragma DATA_ALIGN(pageTable, 16384);
+#ifdef __TMS470__
+#pragma DATA_ALIGN(pageTable, MMU_PAGETABLE_ALIGN_SIZE);
 static volatile unsigned int pageTable[4*1024];
+
+#elif defined(gcc)
+/* @todo Placed in it's own section and zeroed with memset() to avoid the linker memory allocation failing */
+static volatile unsigned int pageTable[4*1024]
+__attribute__((aligned(MMU_PAGETABLE_ALIGN_SIZE)))
+__attribute__((section(".mmu_page_table")));
+
+#else
+#error "Unsupported Compiler.\r\n"
+
+#endif
 
 /*
 ** Function to setup MMU. This function Maps three regions (1. DDR
@@ -62,6 +75,7 @@ static void MMUConfigAndEnable(void)
                        };
 
     /* Initialize the page table and MMU */
+    memset ((void *) pageTable, 0, sizeof (pageTable));
     MMUInit((unsigned int*)pageTable);
 
     /* Map the defined regions */
@@ -77,8 +91,6 @@ static void MMUConfigAndEnable(void)
  */
 static void UART_setup (void)
 {
-    volatile unsigned int regVal;
-
     UARTStdioInit();
 }
 

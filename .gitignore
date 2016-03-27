@@ -31,10 +31,3 @@
 # Debug files
 *.dSYM/
 
-# Eclipse artefacts
-.metadata
-.settings
-RemoteSystemsTempFiles
-dvt
-Debug
-Release
