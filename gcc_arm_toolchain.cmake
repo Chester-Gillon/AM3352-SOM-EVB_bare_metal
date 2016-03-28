@@ -7,10 +7,23 @@ set(TOOLCHAIN_COMPILER_IDENTIFIER "gcc-arm-none-eabi" CACHE STRING "compiler ide
 set(CMAKE_MAKE_PROGRAM "${CCS_INSTALL_ROOT}/ccsv6/utils/bin/gmake"                CACHE STRING "make program")
 
 
-# specify the cross compiler
+# Specify the cross compiler.
+# Under Windows have to:
+# - Add the .exe suffix to the compiler executables so they are found by CMake.
+# - Set the ofd and hex utilities required by the tiobj2bin program. This means under Windows
+#   CG_TOOL_ROOT must be set to point at a TI ARM compiler installation to get armhex and armofd
+#   (under Linux tiobj2bin uses objcopy)
+IF(${WIN32})
+CMAKE_FORCE_C_COMPILER (${ARM_GCC_ROOT}/bin/arm-none-eabi-gcc.exe GNU)
+CMAKE_FORCE_CXX_COMPILER (${ARM_GCC_ROOT}/bin/arm-none-eabi-g++.exe GNU)
+SET (CMAKE_ASM_COMPILER ${ARM_GCC_ROOT}/bin/arm-none-eabi-as.exe)
+SET (TIOBJ2BIN_HELPERS "${CG_TOOL_ROOT}/bin/armofd.exe" "${CG_TOOL_ROOT}/bin/armhex.exe" "${CCS_INSTALL_ROOT}/ccsv6/utils/tiobj2bin/mkhex4bin.exe")
+ELSE()
 CMAKE_FORCE_C_COMPILER (${ARM_GCC_ROOT}/bin/arm-none-eabi-gcc GNU)
 CMAKE_FORCE_CXX_COMPILER (${ARM_GCC_ROOT}/bin/arm-none-eabi-g++ GNU)
 SET (CMAKE_ASM_COMPILER ${ARM_GCC_ROOT}/bin/arm-none-eabi-as)
+SET (TIOBJ2BIN_HELPERS "")
+ENDIF()
 
 # skip compiler tests
 set(CMAKE_ASM_COMPILER_WORKS 1) 

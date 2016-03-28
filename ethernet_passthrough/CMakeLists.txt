@@ -11,7 +11,7 @@ set_target_properties (ethernet_passthrough.out PROPERTIES LINK_DEPENDS "${CMAKE
 TARGET_LINK_LIBRARIES (ethernet_passthrough.out system_config utils AM3352_SOM_platform drivers c nosys)
                                
 add_custom_command (OUTPUT app
-                    COMMAND "${CCS_INSTALL_ROOT}/ccsv6/utils/tiobj2bin/tiobj2bin" ethernet_passthrough.out ethernet_passthrough.bin
+                    COMMAND "${CCS_INSTALL_ROOT}/ccsv6/utils/tiobj2bin/tiobj2bin" ethernet_passthrough.out ethernet_passthrough.bin "${TIOBJ2BIN_HELPERS}"
                     COMMAND "${STARTERWARE_ROOT}/tools/ti_image/tiimage" 0x80000000 NONE ethernet_passthrough.bin app
                     DEPENDS ethernet_passthrough.out
                     COMMENT "Generating ethernet_passthrough app")

@@ -19,7 +19,7 @@ set_target_properties (bootloader.out PROPERTIES LINK_DEPENDS "${CMAKE_CURRENT_S
 TARGET_LINK_LIBRARIES (bootloader.out utils AM3352_SOM_platform mmcsdlib fatfs drivers system_config c nosys)
                              
 add_custom_command (OUTPUT MLO
-                    COMMAND "${CCS_INSTALL_ROOT}/ccsv6/utils/tiobj2bin/tiobj2bin" bootloader.out bootloader.bin
+                    COMMAND "${CCS_INSTALL_ROOT}/ccsv6/utils/tiobj2bin/tiobj2bin" bootloader.out bootloader.bin "${TIOBJ2BIN_HELPERS}"
                     COMMAND "${STARTERWARE_ROOT}/tools/ti_image/tiimage" 0x402F0400 MMCSD bootloader.bin MLO
                     DEPENDS bootloader.out
                     COMMENT "Generating bootloader MLO")
