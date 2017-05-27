@@ -4,7 +4,7 @@ include(CMakeForceCompiler)
 
 set(TOOLCHAIN_COMPILER_IDENTIFIER "gcc-arm-none-eabi" CACHE STRING "compiler identifier" FORCE)
 
-set(CMAKE_MAKE_PROGRAM "${CCS_INSTALL_ROOT}/ccsv6/utils/bin/gmake"                CACHE STRING "make program")
+set(CMAKE_MAKE_PROGRAM "${CCS_INSTALL_ROOT}/ccsv7/utils/bin/gmake"                CACHE STRING "make program")
 
 
 # Specify the cross compiler.
