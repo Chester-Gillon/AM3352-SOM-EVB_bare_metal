@@ -57,6 +57,7 @@ SECTIONS
     .rsthand :
     {
         . = ALIGN(0x10000);
+        KEEP(*(.isr_vector))
         *startup_ARMCA8.* (.text)
     } > IRAM_MEM
     
