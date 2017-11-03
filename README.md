@@ -3,8 +3,8 @@ Experiments for an Olimex AM3352-SOM-EVB (https://www.olimex.com/Products/SOM/AM
 which don't involve Linux.
 
 The programs have been developed using:
-- CCS 7.1
-- GCC ARM Compiler 4_9-2015q3
+- CCS 7.3
+- GCC ARM Compiler 6-2017-q1-update
 - AM335X StarterWare 02.00.01.01
 - cmake v3.5.1
 

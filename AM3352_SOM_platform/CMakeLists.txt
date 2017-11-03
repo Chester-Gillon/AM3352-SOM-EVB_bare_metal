@@ -38,5 +38,9 @@ add_library (drivers "${STARTERWARE_ROOT}/drivers/uart_irda_cir.c"
 add_library (mmcsdlib "${STARTERWARE_ROOT}/mmcsdlib/hs_mmcsdlib.c"
                       "${STARTERWARE_ROOT}/mmcsdlib/mmcsd_proto.c")
 
+# Disable the generation of instructions to perform unaligned accesses for just the ff.c source file, since otherwise the GCC v6.3.1
+# optimiser can generate an unaligned word load which causes the bootloader to fail with an abort
+# (the bootloader runs with the MMU disabled which means unaligned accesses cause a data abort)
+set_source_files_properties("${STARTERWARE_ROOT}/third_party/fatfs/src/ff.c" PROPERTIES COMPILE_FLAGS -mno-unaligned-access)
 add_library (fatfs "${STARTERWARE_ROOT}/third_party/fatfs/src/ff.c"
                    "${STARTERWARE_ROOT}/third_party/fatfs/port/fat_mmcsd.c")
