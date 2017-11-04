@@ -10,10 +10,18 @@ set STARTERWARE_ROOT=%TI_INSTALL_ROOT%/AM335X_StarterWare_02_00_01_01
 rmdir /s /q ..\Release
 rmdir /s /q ..\Debug
 
-mkdir ..\Release
-mkdir ..\Debug
+mkdir ..\Release || goto :error
+mkdir ..\Debug || goto :error
 
 cd ../Release
 cmake -G "Eclipse CDT4 - Unix Makefiles" -DPLATFORM_TYPE=Release -DCCS_INSTALL_ROOT="%CCS_INSTALL_ROOT%" -DARM_GCC_ROOT="%ARM_GCC_ROOT%" -DSTARTERWARE_ROOT="%STARTERWARE_ROOT%" -DCG_TOOL_ROOT="%CG_TOOL_ROOT%" -DCMAKE_MAKE_PROGRAM="%CMAKE_MAKE_PROGRAM%" ..\src
 cd ../Debug
 cmake -G "Eclipse CDT4 - Unix Makefiles" -DPLATFORM_TYPE=Debug -DCCS_INSTALL_ROOT="%CCS_INSTALL_ROOT%" -DARM_GCC_ROOT="%ARM_GCC_ROOT%" -DSTARTERWARE_ROOT="%STARTERWARE_ROOT%" -DCG_TOOL_ROOT="%CG_TOOL_ROOT%" -DCMAKE_MAKE_PROGRAM="%CMAKE_MAKE_PROGRAM%" ..\src
+
+cd ../src
+goto :end
+
+:error
+echo "Setup of cmake failed"
+
+:end
