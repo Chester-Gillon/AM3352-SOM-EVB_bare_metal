@@ -1,9 +1,14 @@
 /**
- * \file   uartConsole.c
+ * \file   uart_console_blocking.c
  *
  * \brief  This file contains functions which interface interactively
  *         with the user through the serial console to perform some
  *         utility operations.
+ *
+ *         Console output operations block the caller until there is free
+ *         space in the UART transmit FIFO.
+ *
+ *         Interrupts are not used.
  */
 
 /*

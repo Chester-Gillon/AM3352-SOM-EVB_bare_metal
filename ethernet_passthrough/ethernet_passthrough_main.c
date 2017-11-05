@@ -17,6 +17,7 @@
 #include <phy.h>
 #include <cpsw.h>
 #include <rtc.h>
+#include <interrupt.h>
 #include <hw/hw_types.h>
 
 /* Copies of macros from drivers/rtc.c which are not part of the API */
@@ -606,6 +607,10 @@ int main (void)
     memset (&current_stats, 0, sizeof (cpsw_statistics_t));
     memset (&previous_stats, 0, sizeof (cpsw_statistics_t));
 
+    /* Enabling IRQ in CPSR of ARM processor. */
+    IntMasterIRQEnable();
+
+    IntAINTCInit ();
     UART_setup ();
     RTC_setup ();
     CPSWClkEnable ();

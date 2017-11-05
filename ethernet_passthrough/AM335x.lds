@@ -172,14 +172,16 @@ SECTIONS
          * must be removed at the expense of an increase in the output binary size */
         FILL(0xBAD0BAD0)
         . = ALIGN(4);
-        __StackLimit = . ;
         *(.stack*)
-        . = . + STACKSIZE;
-        __StackTop = . ;
-        /* The line below created to be compatible with Linaro's semihosting support */
-        __StackBase = . ;
+        /* Allocate space for the system mode stack.
+           __stack is used by the _start run time library code to set the initial stack pointer */
+        . = . + SYSTEM_STACKSIZE;
+        __stack = .;
+        /* Allocate space for the exception mode stacks.
+           The exception mode stacks are set by the project code in startup_ARMCA8.S */
+        . = . + EXCEPTION_STACKSIZE;
+        __exception_stack = . ;
     } > DDR0
-    PROVIDE(__stack = __StackTop);
 
 }
 /**************************************************************************/

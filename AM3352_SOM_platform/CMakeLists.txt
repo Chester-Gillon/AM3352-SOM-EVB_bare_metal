@@ -8,20 +8,35 @@ include_directories ("${STARTERWARE_ROOT}/include/armv7a")
 include_directories ("${STARTERWARE_ROOT}/include/armv7a/am335x")
 include_directories ("${STARTERWARE_ROOT}/mmcsdlib/include")
 include_directories ("${STARTERWARE_ROOT}/third_party/fatfs/src")
+set(CMAKE_C_FLAGS "${PLATFORM_CONFIG_C_FLAGS}")
+
+# By default CMake assumes .S files are assembler source files.
+# The .S source files needs to be compiled as C source files in order to allow use of the pre-processor.
+# The CMAKE_<LANG>_SOURCE_FILE_EXTENSIONS variables are read-only and can't be changed.
+# Therefore, have to override the language of each .S file
+set_source_files_properties("startup_ARMCA8.S" PROPERTIES LANGUAGE C)
 add_library (AM3352_SOM_platform platform_cpsw.c
                                  rtc.c
-                                 uartConsole.c
                                  dmtimer.c
                                  platform_hs_mmcsd.c
                                  sysperf.c
                                  uart.c
-                                 sys_pmu.asm)
-set(CMAKE_C_FLAGS "${PLATFORM_CONFIG_C_FLAGS}")
+                                 sys_pmu.asm
+                                 startup_ARMCA8.S)
 
+add_library (uart_blocking uart_console_blocking.c)
+
+add_library (uart_interrupts uart_console_interrupts.c)
+
+set_source_files_properties("${STARTERWARE_ROOT}/system_config/armv7a/gcc/cp15.S" PROPERTIES LANGUAGE C)
+set_source_files_properties("${STARTERWARE_ROOT}/system_config/armv7a/am335x/gcc/exceptionHandler.S" PROPERTIES LANGUAGE C)
 add_library (system_config "${STARTERWARE_ROOT}/system_config/armv7a/mmu.c"
                            "${STARTERWARE_ROOT}/system_config/armv7a/cache.c"
                            "${STARTERWARE_ROOT}/system_config/armv7a/am335x/device.c"
-                           "${STARTERWARE_ROOT}/system_config/armv7a/gcc/cp15.S")
+                           "${STARTERWARE_ROOT}/system_config/armv7a/gcc/cp15.S"
+                           "${STARTERWARE_ROOT}/system_config/armv7a/am335x/interrupt.c"
+                           "${STARTERWARE_ROOT}/system_config/armv7a/gcc/cpu.c"
+                           "${STARTERWARE_ROOT}/system_config/armv7a/am335x/gcc/exceptionHandler.S")
 
 add_library (utils "${STARTERWARE_ROOT}/utils/uartStdio.c"
                    "${STARTERWARE_ROOT}/utils/ascii.c"
