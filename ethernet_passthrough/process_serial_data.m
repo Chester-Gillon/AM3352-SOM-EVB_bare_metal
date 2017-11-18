@@ -12,6 +12,7 @@ function process_serial_data
     end
     [~, basename, ~] = fileparts (filename);
     
+    % Set the parameters of the serial port to decode
     uart_state.baud_rate = 115200;
     uart_state.bit_time_ns = 1E9 / uart_state.baud_rate;
     uart_state.half_bit_time_ns = uart_state.bit_time_ns / 2;
@@ -20,6 +21,7 @@ function process_serial_data
     uart_state.sample_index = 1;
     uart_state.framing_error = false;
     
+    % Read the LSA data produced by convert_vcd_to_table
     lsa_data = readtable (fullfile(pathname, filename));
     if ~ismember('time_ns', lsa_data.Properties.VariableNames)
         fprintf ('Error: %s doesn''t contain a time_ns field\n', filename);
@@ -30,6 +32,7 @@ function process_serial_data
         return
     end
     
+    % Create a file used to report the decoded text of the serial data
     results_pathname = fullfile (pathname, [basename '.txt']);
     results_fid = fopen (results_pathname, 'wt');
     if results_fid == -1
@@ -37,7 +40,11 @@ function process_serial_data
         return
     end
     
+    % Process all the serial data, building a list of the time gap between
+    % each character
+    gap_bit_times = [];
     carriage_return = sprintf ('\r');
+    previous_uart_char = struct ([]);
     [uart_char, uart_state] = decode_uart_char (lsa_data, uart_state);
     while ~isempty (uart_char)
         if uart_char.data_byte ~= carriage_return
@@ -50,12 +57,47 @@ function process_serial_data
             fprintf ('%s', error_text);
             fprintf (results_fid, '%s', error_text);
         end
+        if ~isempty (previous_uart_char)
+            gap_bit_time = (uart_char.start_bit_time - previous_uart_char.start_bit_time) / ...
+                uart_state.bit_time_ns;
+            if gap_bit_time < uart_state.baud_rate
+                gap_bit_times(length(gap_bit_times) + 1) = gap_bit_time;
+                previous_uart_char = uart_char;
+            else
+                % Large time gap means start of next status report
+                previous_uart_char = struct ([]);
+            end
+        else
+            previous_uart_char = uart_char;
+        end
         
         [uart_char, uart_state] = decode_uart_char (lsa_data, uart_state);
     end
     
     fprintf ('\n');
     fclose (results_fid);
+    
+    % Display histograms of the time gap between characters
+    % Uses a seperate histogram for values within and outside the expected
+    % number of bits per character to be able to see more detail on the
+    % distribution.
+    expected_num_bits = 1 + ... % start bit 
+        uart_state.num_data_bits + uart_state.num_stop_bits;
+    lower_expected_gap = expected_num_bits - 0.5;
+    upper_expected_gap = expected_num_bits + 0.5;
+    nbins = 100;
+    figure
+    overall_figure = gcf;
+    subplot (2,1,1)
+    histogram (gap_bit_times(and(gap_bit_times >= lower_expected_gap, ...
+                                 gap_bit_times <= upper_expected_gap)), nbins);
+    subplot (2,1,2)
+    histogram (gap_bit_times(or(gap_bit_times < lower_expected_gap, ...
+                                gap_bit_times > upper_expected_gap)), nbins);
+    title(overall_figure.Children(end), ...
+        {'Distribution between characters in bit times for', basename}, ...
+        'interpreter', 'none');
+    savefig(fullfile(pathname,[basename '.fig']));
 end
 
 % Attempt to decode one UART character, and if a framing error occurs see
