@@ -10,7 +10,7 @@ set_target_properties (quick_mmu_enable.out PROPERTIES LINK_DEPENDS "${CMAKE_CUR
 TARGET_LINK_LIBRARIES (quick_mmu_enable.out utils uart_blocking AM3352_SOM_platform system_config drivers c nosys)
                              
 add_custom_command (OUTPUT MLO
-                    COMMAND "${CCS_INSTALL_ROOT}/ccsv7/utils/tiobj2bin/tiobj2bin" quick_mmu_enable.out quick_mmu_enable.bin "${TIOBJ2BIN_HELPERS}"
+                    COMMAND "${CCS_INSTALL_ROOT}/ccsv8/utils/tiobj2bin/tiobj2bin" quick_mmu_enable.out quick_mmu_enable.bin "${TIOBJ2BIN_HELPERS}"
                     COMMAND "${STARTERWARE_ROOT}/tools/ti_image/tiimage" 0x40300000 MMCSD quick_mmu_enable.bin MLO
                     DEPENDS quick_mmu_enable.out
                     COMMENT "Generating quick_mmu_enable MLO")

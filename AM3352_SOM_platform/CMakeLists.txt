@@ -29,14 +29,14 @@ add_library (uart_blocking uart_console_blocking.c)
 add_library (uart_interrupts uart_console_interrupts.c)
 
 set_source_files_properties("${STARTERWARE_ROOT}/system_config/armv7a/gcc/cp15.S" PROPERTIES LANGUAGE C)
-set_source_files_properties("${STARTERWARE_ROOT}/system_config/armv7a/am335x/gcc/exceptionHandler.S" PROPERTIES LANGUAGE C)
+set_source_files_properties("${STARTERWARE_ROOT}/system_config/armv7a/am335x/gcc/exceptionhandler.S" PROPERTIES LANGUAGE C)
 add_library (system_config "${STARTERWARE_ROOT}/system_config/armv7a/mmu.c"
                            "${STARTERWARE_ROOT}/system_config/armv7a/cache.c"
                            "${STARTERWARE_ROOT}/system_config/armv7a/am335x/device.c"
                            "${STARTERWARE_ROOT}/system_config/armv7a/gcc/cp15.S"
                            "${STARTERWARE_ROOT}/system_config/armv7a/am335x/interrupt.c"
                            "${STARTERWARE_ROOT}/system_config/armv7a/gcc/cpu.c"
-                           "${STARTERWARE_ROOT}/system_config/armv7a/am335x/gcc/exceptionHandler.S")
+                           "${STARTERWARE_ROOT}/system_config/armv7a/am335x/gcc/exceptionhandler.S")
 
 add_library (utils "${STARTERWARE_ROOT}/utils/uartStdio.c"
                    "${STARTERWARE_ROOT}/utils/ascii.c"

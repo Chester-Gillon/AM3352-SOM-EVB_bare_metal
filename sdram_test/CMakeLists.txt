@@ -11,7 +11,7 @@ set_target_properties (sdram_test.out PROPERTIES LINK_DEPENDS "${CMAKE_CURRENT_S
 TARGET_LINK_LIBRARIES (sdram_test.out utils uart_blocking AM3352_SOM_platform system_config drivers c nosys)
                              
 add_custom_command (OUTPUT app
-                    COMMAND "${CCS_INSTALL_ROOT}/ccsv7/utils/tiobj2bin/tiobj2bin" sdram_test.out sdram_test.bin "${TIOBJ2BIN_HELPERS}"
+                    COMMAND "${CCS_INSTALL_ROOT}/ccsv8/utils/tiobj2bin/tiobj2bin" sdram_test.out sdram_test.bin "${TIOBJ2BIN_HELPERS}"
                     COMMAND "${STARTERWARE_ROOT}/tools/ti_image/tiimage" 0x40300000 NONE sdram_test.bin app
                     DEPENDS sdram_test.out
                     COMMENT "Generating sdram_test app")
