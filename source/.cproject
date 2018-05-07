@@ -1,62 +1,176 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <?fileVersion 4.0.0?><cproject storage_type_id="org.eclipse.cdt.core.XmlProjectDescriptionStorage">
 	<storageModule moduleId="org.eclipse.cdt.core.settings">
-		<cconfiguration id="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.DebugToolchain.671571671">
-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.DebugToolchain.671571671" moduleId="org.eclipse.cdt.core.settings" name="Debug">
+		<cconfiguration id="cdt.managedbuild.toolchain.gnu.cross.base.1621319114">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.toolchain.gnu.cross.base.1621319114" moduleId="org.eclipse.cdt.core.settings" name="Debug">
 				<externalSettings/>
 				<extensions>
-					<extension id="com.ti.ccstudio.binaryparser.CoffParser" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="com.ti.ccstudio.errorparser.CoffErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="com.ti.ccstudio.errorparser.AsmErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.rtsc.xdctools.parsers.ErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="com.ti.ccstudio.errorparser.SysConfigErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="com.ti.ccstudio.errorparser.LinkErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration buildProperties="" description="" id="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.DebugToolchain.671571671" name="Debug" parent="org.eclipse.cdt.build.core.emptycfg">
-					<folderInfo id="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.DebugToolchain.671571671.1600123121" name="/" resourcePath="">
-						<toolChain id="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.DebugToolchain.1408425413" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.DebugToolchain">
-							<targetPlatform id="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.targetPlatformDebug.448247073" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.targetPlatformDebug"/>
-							<builder arguments="-C ${workspace_loc}/build/Debug" buildPath="${workspace_loc}/build/Debug" command="make" id="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.builderDebug.1197054382" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="GNU Make" superClass="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.builderDebug"/>
+				<configuration buildProperties="" description="" id="cdt.managedbuild.toolchain.gnu.cross.base.1621319114" name="Debug" parent="org.eclipse.cdt.build.core.emptycfg">
+					<folderInfo id="cdt.managedbuild.toolchain.gnu.cross.base.1621319114.890948605" name="/" resourcePath="">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.cross.base.163800446" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.base">
+							<option id="cdt.managedbuild.option.gnu.cross.prefix.1934346737" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix"/>
+							<option id="cdt.managedbuild.option.gnu.cross.path.1423450182" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path"/>
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.targetPlatform.gnu.cross.296833023" isAbstract="false" osList="all" superClass="cdt.managedbuild.targetPlatform.gnu.cross"/>
+							<builder arguments="-C ${workspace_loc}/build/Debug" buildPath="${workspace_loc}/build/Debug" command="make" id="cdt.managedbuild.builder.gnu.cross.2074964696" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross">
+								<outputEntries>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name=""/>
+								</outputEntries>
+							</builder>
+							<tool id="cdt.managedbuild.tool.gnu.cross.c.compiler.988327709" name="Cross GCC Compiler" superClass="cdt.managedbuild.tool.gnu.cross.c.compiler">
+								<option id="gnu.c.compiler.option.include.paths.405550670" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include/hw&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include/armv7a&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include/armv7a/am335x&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/bootloader/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/third_party/fatfs/src&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/mmcsdlib/include&quot;"/>
+								</option>
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.983611094" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="gcc"/>
+									<listOptionValue builtIn="false" value="AM3352_SOM"/>
+									<listOptionValue builtIn="false" value="am335x"/>
+									<listOptionValue builtIn="false" value="MMCSD"/>
+									<listOptionValue builtIn="false" value="am3352"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1449541502" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.compiler.1550674399" name="Cross G++ Compiler" superClass="cdt.managedbuild.tool.gnu.cross.cpp.compiler">
+								<option id="gnu.cpp.compiler.option.include.paths.1554661405" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include/hw&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include/armv7a&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include/armv7a/am335x&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/bootloader/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/third_party/fatfs/src&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/mmcsdlib/include&quot;"/>
+								</option>
+								<option id="gnu.cpp.compiler.option.preprocessor.def.1831041159" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="gcc"/>
+									<listOptionValue builtIn="false" value="AM3352_SOM"/>
+									<listOptionValue builtIn="false" value="am335x"/>
+									<listOptionValue builtIn="false" value="MMCSD"/>
+									<listOptionValue builtIn="false" value="am3352"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.943040681" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.cross.c.linker.1769480970" name="Cross GCC Linker" superClass="cdt.managedbuild.tool.gnu.cross.c.linker"/>
+							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.linker.380483453" name="Cross G++ Linker" superClass="cdt.managedbuild.tool.gnu.cross.cpp.linker">
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.1611458052" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.cross.archiver.1163567954" name="Cross GCC Archiver" superClass="cdt.managedbuild.tool.gnu.cross.archiver"/>
+							<tool id="cdt.managedbuild.tool.gnu.cross.assembler.85933801" name="Cross GCC Assembler" superClass="cdt.managedbuild.tool.gnu.cross.assembler">
+								<option id="gnu.both.asm.option.include.paths.912625678" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include/hw&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include/armv7a/am335x&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/bootloader/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/third_party/fatfs/src&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/mmcsdlib/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include/armv7a&quot;"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.874013462" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
 						</toolChain>
 					</folderInfo>
 				</configuration>
 			</storageModule>
 			<storageModule moduleId="org.eclipse.cdt.core.externalSettings"/>
 		</cconfiguration>
-		<cconfiguration id="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.DebugToolchain.671571671.674565161">
-			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.DebugToolchain.671571671.674565161" moduleId="org.eclipse.cdt.core.settings" name="Release">
+		<cconfiguration id="cdt.managedbuild.toolchain.gnu.cross.base.1621319114.773135718">
+			<storageModule buildSystemId="org.eclipse.cdt.managedbuilder.core.configurationDataProvider" id="cdt.managedbuild.toolchain.gnu.cross.base.1621319114.773135718" moduleId="org.eclipse.cdt.core.settings" name="Release">
 				<externalSettings/>
 				<extensions>
-					<extension id="com.ti.ccstudio.binaryparser.CoffParser" point="org.eclipse.cdt.core.BinaryParser"/>
+					<extension id="org.eclipse.cdt.core.ELF" point="org.eclipse.cdt.core.BinaryParser"/>
 					<extension id="org.eclipse.cdt.core.GASErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="com.ti.ccstudio.errorparser.CoffErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.MakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="com.ti.ccstudio.errorparser.AsmErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GmakeErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.rtsc.xdctools.parsers.ErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="org.eclipse.cdt.core.VCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="com.ti.ccstudio.errorparser.SysConfigErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
-					<extension id="com.ti.ccstudio.errorparser.LinkErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.GLDErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
+					<extension id="org.eclipse.cdt.core.CWDLocator" point="org.eclipse.cdt.core.ErrorParser"/>
 					<extension id="org.eclipse.cdt.core.GCCErrorParser" point="org.eclipse.cdt.core.ErrorParser"/>
 				</extensions>
 			</storageModule>
 			<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-				<configuration buildProperties="" description="" id="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.DebugToolchain.671571671.674565161" name="Release" parent="org.eclipse.cdt.build.core.emptycfg">
-					<folderInfo id="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.DebugToolchain.671571671.674565161." name="/" resourcePath="">
-						<toolChain id="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.DebugToolchain.1803169252" name="TI Build Tools" superClass="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.DebugToolchain">
-							<targetPlatform id="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.targetPlatformDebug.825819565" name="Platform" superClass="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.targetPlatformDebug"/>
-							<builder arguments="-C ${workspace_loc}/build/Release" buildPath="${workspace_loc}/build/Release" command="make" id="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.builderDebug.113153729" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="GNU Make" superClass="com.ti.ccstudio.buildDefinitions.C2000_18.1.exe.builderDebug"/>
+				<configuration buildProperties="" description="" id="cdt.managedbuild.toolchain.gnu.cross.base.1621319114.773135718" name="Release" parent="org.eclipse.cdt.build.core.emptycfg">
+					<folderInfo id="cdt.managedbuild.toolchain.gnu.cross.base.1621319114.773135718." name="/" resourcePath="">
+						<toolChain id="cdt.managedbuild.toolchain.gnu.cross.base.110617467" name="Cross GCC" superClass="cdt.managedbuild.toolchain.gnu.cross.base">
+							<option id="cdt.managedbuild.option.gnu.cross.prefix.338680156" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix"/>
+							<option id="cdt.managedbuild.option.gnu.cross.path.1686206626" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path"/>
+							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.targetPlatform.gnu.cross.189996771" isAbstract="false" osList="all" superClass="cdt.managedbuild.targetPlatform.gnu.cross"/>
+							<builder arguments="-C ${workspace_loc}/build/Release" buildPath="${workspace_loc}/build/Release" command="make" id="cdt.managedbuild.builder.gnu.cross.5757565" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross">
+								<outputEntries>
+									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name=""/>
+								</outputEntries>
+							</builder>
+							<tool id="cdt.managedbuild.tool.gnu.cross.c.compiler.905113358" name="Cross GCC Compiler" superClass="cdt.managedbuild.tool.gnu.cross.c.compiler">
+								<option id="gnu.c.compiler.option.include.paths.228638039" name="Include paths (-I)" superClass="gnu.c.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include/hw&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include/armv7a&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include/armv7a/am335x&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/bootloader/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/third_party/fatfs/src&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/mmcsdlib/include&quot;"/>
+								</option>
+								<option id="gnu.c.compiler.option.preprocessor.def.symbols.206696307" name="Defined symbols (-D)" superClass="gnu.c.compiler.option.preprocessor.def.symbols" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="gcc"/>
+									<listOptionValue builtIn="false" value="AM3352_SOM"/>
+									<listOptionValue builtIn="false" value="am335x"/>
+									<listOptionValue builtIn="false" value="MMCSD"/>
+									<listOptionValue builtIn="false" value="am3352"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.c.compiler.input.1284183455" superClass="cdt.managedbuild.tool.gnu.c.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.compiler.1420847839" name="Cross G++ Compiler" superClass="cdt.managedbuild.tool.gnu.cross.cpp.compiler">
+								<option id="gnu.cpp.compiler.option.include.paths.831165575" name="Include paths (-I)" superClass="gnu.cpp.compiler.option.include.paths" useByScannerDiscovery="false" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include/hw&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include/armv7a&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include/armv7a/am335x&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/bootloader/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/third_party/fatfs/src&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/mmcsdlib/include&quot;"/>
+								</option>
+								<option id="gnu.cpp.compiler.option.preprocessor.def.327250882" name="Defined symbols (-D)" superClass="gnu.cpp.compiler.option.preprocessor.def" useByScannerDiscovery="false" valueType="definedSymbols">
+									<listOptionValue builtIn="false" value="gcc"/>
+									<listOptionValue builtIn="false" value="AM3352_SOM"/>
+									<listOptionValue builtIn="false" value="am335x"/>
+									<listOptionValue builtIn="false" value="MMCSD"/>
+									<listOptionValue builtIn="false" value="am3352"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.compiler.input.1503229095" superClass="cdt.managedbuild.tool.gnu.cpp.compiler.input"/>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.cross.c.linker.332482007" name="Cross GCC Linker" superClass="cdt.managedbuild.tool.gnu.cross.c.linker"/>
+							<tool id="cdt.managedbuild.tool.gnu.cross.cpp.linker.1797678453" name="Cross G++ Linker" superClass="cdt.managedbuild.tool.gnu.cross.cpp.linker">
+								<inputType id="cdt.managedbuild.tool.gnu.cpp.linker.input.568073014" superClass="cdt.managedbuild.tool.gnu.cpp.linker.input">
+									<additionalInput kind="additionalinputdependency" paths="$(USER_OBJS)"/>
+									<additionalInput kind="additionalinput" paths="$(LIBS)"/>
+								</inputType>
+							</tool>
+							<tool id="cdt.managedbuild.tool.gnu.cross.archiver.777743116" name="Cross GCC Archiver" superClass="cdt.managedbuild.tool.gnu.cross.archiver"/>
+							<tool id="cdt.managedbuild.tool.gnu.cross.assembler.72306470" name="Cross GCC Assembler" superClass="cdt.managedbuild.tool.gnu.cross.assembler">
+								<option id="gnu.both.asm.option.include.paths.1115428259" name="Include paths (-I)" superClass="gnu.both.asm.option.include.paths" valueType="includePath">
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include/hw&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include/armv7a/am335x&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/bootloader/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/third_party/fatfs/src&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/mmcsdlib/include&quot;"/>
+									<listOptionValue builtIn="false" value="&quot;${STARTERWARE_ROOT}/include/armv7a&quot;"/>
+								</option>
+								<inputType id="cdt.managedbuild.tool.gnu.assembler.input.666564914" superClass="cdt.managedbuild.tool.gnu.assembler.input"/>
+							</tool>
 						</toolChain>
 					</folderInfo>
 				</configuration>
@@ -65,22 +179,30 @@
 		</cconfiguration>
 	</storageModule>
 	<storageModule moduleId="cdtBuildSystem" version="4.0.0">
-		<project id="source.null.1466597082" name="source"/>
-	</storageModule>
-	<storageModule moduleId="scannerConfiguration">
-		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<project id="source.null.735935071" name="source"/>
 	</storageModule>
 	<storageModule moduleId="org.eclipse.cdt.core.LanguageSettingsProviders"/>
+	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
+	<storageModule moduleId="null.devicePreference"/>
+	<storageModule moduleId="cpuFamily"/>
 	<storageModule moduleId="refreshScope" versionNumber="2">
 		<configuration configurationName="Default">
 			<resource resourceType="PROJECT" workspacePath="/source"/>
 		</configuration>
-		<configuration configurationName="Debug">
-			<resource resourceType="PROJECT" workspacePath="/source"/>
-		</configuration>
-		<configuration configurationName="Release"/>
 	</storageModule>
-	<storageModule moduleId="org.eclipse.cdt.make.core.buildtargets"/>
-	<storageModule moduleId="null.devicePreference"/>
-	<storageModule moduleId="cpuFamily"/>
+	<storageModule moduleId="scannerConfiguration">
+		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1621319114.773135718;cdt.managedbuild.toolchain.gnu.cross.base.1621319114.773135718.;cdt.managedbuild.tool.gnu.cross.cpp.compiler.1420847839;cdt.managedbuild.tool.gnu.cpp.compiler.input.1503229095">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1621319114.773135718;cdt.managedbuild.toolchain.gnu.cross.base.1621319114.773135718.;cdt.managedbuild.tool.gnu.cross.c.compiler.905113358;cdt.managedbuild.tool.gnu.c.compiler.input.1284183455">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1621319114;cdt.managedbuild.toolchain.gnu.cross.base.1621319114.890948605;cdt.managedbuild.tool.gnu.cross.c.compiler.988327709;cdt.managedbuild.tool.gnu.c.compiler.input.1449541502">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+		<scannerConfigBuildInfo instanceId="cdt.managedbuild.toolchain.gnu.cross.base.1621319114;cdt.managedbuild.toolchain.gnu.cross.base.1621319114.890948605;cdt.managedbuild.tool.gnu.cross.cpp.compiler.1550674399;cdt.managedbuild.tool.gnu.cpp.compiler.input.943040681">
+			<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
+		</scannerConfigBuildInfo>
+	</storageModule>
 </cproject>

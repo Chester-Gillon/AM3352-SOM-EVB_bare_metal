@@ -3,3 +3,7 @@
 /.metadata/
 /RemoteSystemsTempFiles/
 /.jxbrowser-data/
+/g++
+/gcc
+/launch_ccstudio.sh
+*/.settings/language.settings.xml
