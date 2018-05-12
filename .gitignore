@@ -6,4 +6,6 @@
 /g++
 /gcc
 /launch_ccstudio.sh
+/launch_ccstudio.bat
+/gcc-arm-none-eabi/
 */.settings/language.settings.xml
