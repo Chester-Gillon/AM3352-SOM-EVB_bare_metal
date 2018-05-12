@@ -20,7 +20,7 @@
 							<option id="cdt.managedbuild.option.gnu.cross.prefix.1934346737" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix"/>
 							<option id="cdt.managedbuild.option.gnu.cross.path.1423450182" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.targetPlatform.gnu.cross.296833023" isAbstract="false" osList="all" superClass="cdt.managedbuild.targetPlatform.gnu.cross"/>
-							<builder arguments="-C ${workspace_loc}/build/Debug" buildPath="${workspace_loc}/build/Debug" command="make" id="cdt.managedbuild.builder.gnu.cross.2074964696" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross">
+							<builder arguments="-C ${workspace_loc}/build/Debug" buildPath="${workspace_loc}/build/Debug" command="${ccs_install_root}/utils/bin/gmake" id="cdt.managedbuild.builder.gnu.cross.2074964696" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross">
 								<outputEntries>
 									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name=""/>
 								</outputEntries>
@@ -108,7 +108,7 @@
 							<option id="cdt.managedbuild.option.gnu.cross.prefix.338680156" name="Prefix" superClass="cdt.managedbuild.option.gnu.cross.prefix"/>
 							<option id="cdt.managedbuild.option.gnu.cross.path.1686206626" name="Path" superClass="cdt.managedbuild.option.gnu.cross.path"/>
 							<targetPlatform archList="all" binaryParser="org.eclipse.cdt.core.ELF" id="cdt.managedbuild.targetPlatform.gnu.cross.189996771" isAbstract="false" osList="all" superClass="cdt.managedbuild.targetPlatform.gnu.cross"/>
-							<builder arguments="-C ${workspace_loc}/build/Release" buildPath="${workspace_loc}/build/Release" command="make" id="cdt.managedbuild.builder.gnu.cross.5757565" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross">
+							<builder arguments="-C ${workspace_loc}/build/Release" buildPath="${workspace_loc}/build/Release" command="${ccs_install_root}/utils/bin/gmake" id="cdt.managedbuild.builder.gnu.cross.5757565" keepEnvironmentInBuildfile="false" managedBuildOn="false" name="Gnu Make Builder" superClass="cdt.managedbuild.builder.gnu.cross">
 								<outputEntries>
 									<entry flags="VALUE_WORKSPACE_PATH|RESOLVED" kind="outputPath" name=""/>
 								</outputEntries>
@@ -189,6 +189,8 @@
 		<configuration configurationName="Default">
 			<resource resourceType="PROJECT" workspacePath="/source"/>
 		</configuration>
+		<configuration configurationName="Debug"/>
+		<configuration configurationName="Release"/>
 	</storageModule>
 	<storageModule moduleId="scannerConfiguration">
 		<autodiscovery enabled="true" problemReportingEnabled="true" selectedProfileId=""/>
